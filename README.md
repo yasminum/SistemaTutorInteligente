@@ -24,6 +24,8 @@ Este proyecto presenta la implementación computacional (*in-silico*) de un **Si
 
 La arquitectura ha sido iterada adversarialmente para robustecer la extracción de características y la planificación bajo incertidumbre. Se estructura en cuatro capas de procesamiento tensorial acopladas en un bucle cerrado (Closed-Loop CMDP), superando las limitaciones de los ITS clásicos:
 
+<img width="1754" height="914" alt="image" src="https://github.com/user-attachments/assets/1a056437-b623-447d-bc53-9e67a35853b1" />
+
 ```mermaid
 flowchart TD
     %% Estilos de alto contraste y nivel académico
