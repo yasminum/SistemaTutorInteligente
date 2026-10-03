@@ -139,24 +139,24 @@ flowchart TD
     classDef metric fill:#e1f5fe,stroke:#0277bd,stroke-width:2px;
     classDef condition fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
     
-    subgraph D [Diseño Experimental (N = 10 Seeds)]
-        D1[Batería Experimental \n 30 Textos / 120 Ítems]
-        D2[Partición de Semillas \n seed0 - seed9]
+    subgraph D ["Diseño Experimental (N = 10 Seeds)"]
+        D1["Batería Experimental \n 30 Textos / 120 Ítems"]
+        D2["Partición de Semillas \n seed0 - seed9"]
     end
     
-    subgraph E [Condiciones de Evaluación Pareada]
-        E0[B0: Aleatorio]:::condition
-        E1[B1: Curriculum Fijo]:::condition
-        E2[B2: Greedy Mastery]:::condition
-        E3[B3: RL Básico]:::condition
-        E4[B4: PPO Model-Free]:::condition
-        E5[B5: Dyna-PPO Model-Based]:::condition
+    subgraph E ["Condiciones de Evaluación Pareada"]
+        E0["B0: Aleatorio"]:::condition
+        E1["B1: Curriculum Fijo"]:::condition
+        E2["B2: Greedy Mastery"]:::condition
+        E3["B3: RL Básico"]:::condition
+        E4["B4: PPO Model-Free"]:::condition
+        E5["B5: Dyna-PPO Model-Based"]:::condition
     end
     
-    subgraph F [Métricas de Éxito]
-        F1[LG_sim \n Ganancia de Aprendizaje]:::metric
-        F2[Evolución Mastery \n KC por KC]:::metric
-        F3[Eficiencia Muestral \n Recompensa/Episodio]:::metric
+    subgraph F ["Métricas de Éxito"]
+        F1["LG_sim \n Ganancia de Aprendizaje"]:::metric
+        F2["Evolución Mastery \n KC por KC"]:::metric
+        F3["Eficiencia Muestral \n Recompensa/Episodio"]:::metric
     end
     
     D1 --> D2
