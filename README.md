@@ -1,232 +1,200 @@
-<div align="center">
-  <img src="https://raw.githubusercontent.com/yasminum/SistemaTutorInteligente/main/figures/uni_logo.png" alt="UNI Logo" width="120" style="margin-bottom: 20px;"/>
-  
-  # 🧠 Sistema de Tutoría Inteligente Adaptativa (DRL)
-  
-  **Tesis de Maestría en Inteligencia Artificial - Universidad Nacional de Ingeniería (UNI)**
-  
-  *Integración de Multi-Skill Knowledge Tracing (MSKT), Neural Cognitive Diagnosis (NeuralCD) y Model-Based Policy Optimization (Dyna-PPO) para la optimización de la comprensión lectora basada en literatura peruana.*
+# Semana 5 · Feature Engineering + Experimentos A/B
 
-  [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-  [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C.svg?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org)
-  [![Gymnasium](https://img.shields.io/badge/Gymnasium-RL-green.svg?style=for-the-badge)](https://gymnasium.farama.org/)
-  [![Status](https://img.shields.io/badge/Estado-Investigación_Finalizada-success.svg?style=for-the-badge)]()
-</div>
+**Sistema de Tutoría Inteligente Adaptativa (DRL) · Grupo 2 · Maestría en IA · UNI**
+*Proyecto de Investigación 2 — Prof. Glen Rodríguez · rama `feature-engineering`*
 
-<br>
-
-## 📋 Resumen Ejecutivo
-Este proyecto presenta la implementación computacional (*in-silico*) de un **Sistema de Tutoría Inteligente (ITS)** revolucionario. Emplea un enfoque de **Deep Reinforcement Learning (DRL)** con una arquitectura *Model-Based* para generar políticas de enseñanza personalizadas. Superando drásticamente a las heurísticas tradicionales y a los agentes de RL puros (*Model-Free*), el sistema modela de forma autónoma la memoria, la fatiga y el progreso cognitivo de los estudiantes frente a textos de literatura peruana.
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/yasminum/SistemaTutorInteligente/blob/feature-engineering/notebooks/02_Feature_Engineering.ipynb)
+![Leakage](https://img.shields.io/badge/pruebas_de_fuga-5%2F5_PASS-blue)
+![Repro](https://img.shields.io/badge/resultados-recalculables_y_con_hash-informational)
 
 ---
 
-## 🏗️ Arquitectura del Sistema (Pipeline Avanzado)
+## TL;DR
 
-La arquitectura ha sido iterada adversarialmente para robustecer la extracción de características y la planificación bajo incertidumbre. Se estructura en cuatro capas de procesamiento tensorial acopladas en un bucle cerrado (Closed-Loop CMDP), superando las limitaciones de los ITS clásicos:
+| | Resultado (10 pares fold × semilla, estudiantes **no vistos**) |
+|---|---|
+| **Pregunta** | ¿Qué representación del estado le permite a PPO elegir *texto × nivel* que produzcan aprendizaje real en estudiantes nuevos? |
+| **Var1 `PPOlin_FS1_zpd4`** | $\Delta LG_{\text{sim}} = +0.0200$ · IC95 $[+0.0130,\ +0.0274]$ · $p_{\text{Holm}} = 0.004$ · gana en **10/10** pares · llega al LG final del baseline en **350** episodios contra **750** → **ADOPTAR** |
+| **Var2 `PPOlin_FS2_hist6`** | $\Delta LG_{\text{sim}} = +0.0032$ · IC95 $[-0.0051,\ +0.0122]$ · $p_{\text{Holm}} = 0.494$ · 5/10 pares → **DESCARTAR** |
+| **Costo** | +0.119 ms por decisión (mediana 0.150 ms frente a 0.031 ms) |
+| **Mecanismo** | Var1 **acierta menos** (−1.4 pp) pero genera **+0.039 eventos de aprendizaje por paso** (10/10 pares): deja de elegir ítems fáciles y elige ítems dentro de la ZPD |
 
-```mermaid
-flowchart TD
-    %% Estilos de alto contraste y nivel académico
-    classDef envLayer fill:#f8f9fa,stroke:#ced4da,stroke-width:2px,color:#212529;
-    classDef cogLayer fill:#e3f2fd,stroke:#90caf9,stroke-width:2px,color:#0d47a1;
-    classDef mbLayer fill:#fff3e0,stroke:#ffb74d,stroke-width:2px,color:#e65100;
-    classDef rlLayer fill:#e8f5e9,stroke:#81c784,stroke-width:2px,color:#1b5e20;
-    classDef shield fill:#ffebee,stroke:#ef5350,stroke-width:2px,stroke-dasharray: 5 5;
-
-    subgraph L1 ["Capas 1: Entorno Simulado (Generación de Datos)"]
-        direction LR
-        E1["Simulador IRT\n(θ, Fatiga, Racha)"]:::envLayer
-        E2["Banco de Textos\nLiteratura Peruana\n(Parámetros a,b,c)"]:::envLayer
-        E1 -- "Interacción (a, t)" --> E2
-        E2 --> E1
-    end
-
-    subgraph L2 ["Capa 2: Diagnóstico y Rastreabilidad Cognitiva"]
-        direction LR
-        C1["MSKT + SAINT+\n(LSTM, Olvido Temporal)"]:::cogLayer
-        C2["NeuralCD\n(Proyección de Maestría KC)"]:::cogLayer
-        C3["Feature Fusing\nExtracción Latente x_t"]:::cogLayer
-        C1 --> C2 --> C3
-    end
-
-    subgraph L3 ["Capa 3: Dinámicas del Mundo (Model-Based)"]
-        direction TB
-        M1["World Model Neural Network\nf(s,a) → s', r"]:::mbLayer
-        M2["Branching Rollouts\n(Simulación de H pasos)"]:::mbLayer
-        M1 -- "Genera" --> M2
-        M1 -. "Loss: MSE(s')" .-> M1
-    end
-
-    subgraph L4 ["Capa 4: Optimización de Política (Dyna-PPO)"]
-        direction TB
-        P1["Actor Network (π)\nMultidiscreta (Texto, Dif, Scaffold)"]:::rlLayer
-        P2["Critic Network (V)\nValue Estimation"]:::rlLayer
-        P3["PPO Clipping & Advantage\nGAE-λ"]:::rlLayer
-        P1 & P2 --> P3
-    end
-    
-    %% Filtro de Seguridad
-    S1{{"CMDP Shield\n(Bloqueo de Frustración)"}}:::shield
-
-    %% Conexiones Principales
-    L1 == "Vector de Respuesta (R, t)" ==> L2
-    C3 == "Estado Continuo (s_t)" ==> M1
-    C3 == "Estado Continuo (s_t)" ==> P1
-    C3 == "Estado Continuo (s_t)" ==> P2
-    
-    M2 == "Batch de Datos Sintéticos" ==> P3
-    L1 == "Batch de Datos Reales" ==> P3
-    
-    P1 == "Acción Propuesta (a_t)" ==> S1
-    S1 == "Acción Segura Ejecutada" ==> L1
-```
+> Cada número de este README proviene de `data/results/` (generado por `python -m src.run_ab --all`) y del notebook ejecutado. Corrimos el experimento completo tres veces y obtuvimos resultados idénticos (determinista con semillas fijas).
 
 ---
 
-## 🔍 Anatomía de los Componentes (Iteración Deep-Dive)
+## 1. Cumplimiento de la sesión (IA05)
 
-### 1. Diagnóstico Cognitivo Profundo (Capa 2)
-El sistema no asume un conocimiento estático. En su lugar, proyecta un espacio latente de **8 Dimensiones de Knowledge Components (KCs)** específicos de comprensión lectora (ej. Inferencia Contextual, Figuras Retóricas). 
-* **SAINT+ (Temporal Tracing)**: Penaliza la retención de memoria usando una función de decaimiento temporal, modelando la curva de olvido de Ebbinghaus.
-* **Fusión de Features**: Concatena el vector de habilidad IRT ($\theta$), desviación estándar ($\sigma$), métricas temporales ($\tau$), y la historia latente procesada por una red LSTM.
-
-### 2. Planificación bajo Incertidumbre (Capas 3 y 4)
-* **El World Model (MBPO)**: Para evitar el problema de ineficiencia de muestreo de algoritmos Model-Free (B4), el sistema aprende una función de transición $P_{\phi}(s_{t+1}, r_t | s_t, a_t)$. Una vez el error cuadrático medio (MSE) de este modelo predictivo cae por debajo de $\epsilon=0.1$, desata rollouts sintéticos.
-* **Ramificación (Branched Rollouts)**: Desde estados reales visitados, el World Model expande trayectorias imaginarias de longitud $H=5$. PPO entrena sobre una amalgama masiva de experiencia real (el alumno) y sintética (la simulación de cómo reaccionaría el alumno).
-* **CMDP Shield**: Una capa de Procesos de Decisión de Markov Restringidos (CMDP) intercepta la política. Si el estudiante hila $\ge 4$ errores consecutivos, el *shield* interviene determinísticamente reduciendo la dificultad a $0$, evitando la frustración del modelo estocástico del Actor.
-
----
-
-## 📄 Estructura de Datos (Dataset de Ejemplo)
-
-A continuación, un extracto del banco de ítems (Data Sample) de literatura peruana utilizado durante la iteración en el entorno *Gymnasium*. Cada texto está mapeado a vectores de dificultad y parámetros cognitivos.
-
-```json
-{
-  "text_id": "TXT_042_VALLEJO",
-  "metadata": {
-    "author": "César Vallejo",
-    "work": "Los Heraldos Negros",
-    "knowledge_components": ["KC2: Inferencia Contextual", "KC3: Figuras Retóricas"]
-  },
-  "item_parameters": {
-    "discrimination_a": 1.45,
-    "difficulty_b_base": 0.5,
-    "guessing_c": 0.25,
-    "target_kc_index": 2
-  },
-  "scaffold_levels": [
-    {"level": 0, "type": "Ninguno", "content": "¿Qué simbolizan 'los heraldos'?"},
-    {"level": 1, "type": "Pista", "content": "Recuerda el contexto fatalista del poema."},
-    {"level": 2, "type": "Soporte", "content": "Analiza la frase 'golpes como del odio de Dios'."}
-  ]
-}
-```
+| Slide | Requisito | Dónde está |
+|---|---|---|
+| 3–5 | Baseline + 2 variantes, **un cambio por variante**, nombres claros | §4 · `src/experiment.py::VARIANTS` |
+| 6, 12 | Validación correcta: **GroupKFold por estudiante**, *fit* solo en train | §3 · `src/leakage_checks.py` (5/5 PASS) |
+| 7 | Tuning ligero y trazable | 1 hiperparámetro (`lr_pi`) probado en un *pool* de desarrollo disjunto (ids 100–139), idéntico para las 3 variantes |
+| 9 | Tabla estándar: métrica principal + secundarias + costo + nota + ID + ruta del log | §4.1 · `data/results/tabla_comparativa_ab.csv` |
+| 10–11 | Optimización: objetivo + #evaluaciones + **violaciones** | §4.2 (curva holdout vs. episodios y tasa de shield) |
+| 13 | Logs con config, métricas, costo y timestamp; snapshot con hash; versiones | `logs/metrics_experimentos.csv` · `data/SNAPSHOT.json` |
+| 14 | Decisión adoptar/descartar | §5 |
+| 15 | Riesgos y próximos pasos | §7 |
 
 ---
 
-## 🔬 Framework Experimental y Resultados
+## 2. Entorno y métrica central
 
-El sistema fue sometido a una rigurosa evaluación de ablación en 10 semillas aleatorias (`seed0` a `seed9`), midiendo la ganancia de aprendizaje simulada (`LG_sim`).
+* **Entorno:** port numpy **fiel** de `tesis-drl-its/src/environment.py` (IRT-3PL, aprendizaje en la ventana $\lvert\theta_k-b_{adj}\rvert<0.5$, olvido multiplicativo, shield con racha ≥ 4, la misma recompensa). Diferencias declaradas: sin LSTM congelado de pesos aleatorios; sin la dimensión *andamiaje*, que el entorno recibe pero nunca usa (30 × 3 = 90 acciones); banco de ítems fijo con SHA-256 `07ed76f0bee0a21d…`.
+* **Métrica central:** $LG_{\text{sim}}=\dfrac{\bar\theta^*_{post}-\bar\theta^*_{pre}}{1-\bar\theta^*_{pre}}$ calculada sobre la habilidad **verdadera** del simulador (Hake, 1998), **en estudiantes de test** y con la política congelada.
+* **Agente:** PPO-clip (Schulman et al., 2017) con política softmax **lineal** (numpy). Con un aproximador lineal, la representación es el **único** factor que cambia entre variantes.
 
-### 🧪 Metodología de Evaluación y Ablación
-
-Para garantizar una validación exhaustiva, diseñamos el siguiente pipeline experimental (cuasi-experimental in-silico), estructurado en múltiples condiciones de evaluación:
-
-```mermaid
-flowchart TD
-    classDef data fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef metric fill:#e1f5fe,stroke:#0277bd,stroke-width:2px;
-    classDef condition fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
-    
-    subgraph D ["Diseño Experimental (N = 10 Seeds)"]
-        D1["Batería Experimental \n 30 Textos / 120 Ítems"]
-        D2["Partición de Semillas \n seed0 - seed9"]
-    end
-    
-    subgraph E ["Condiciones de Evaluación Pareada"]
-        E0["B0: Aleatorio"]:::condition
-        E1["B1: Curriculum Fijo"]:::condition
-        E2["B2: Greedy Mastery"]:::condition
-        E3["B3: RL Básico"]:::condition
-        E4["B4: PPO Model-Free"]:::condition
-        E5["B5: Dyna-PPO Model-Based"]:::condition
-    end
-    
-    subgraph F ["Métricas de Éxito"]
-        F1["LG_sim \n Ganancia de Aprendizaje"]:::metric
-        F2["Evolución Mastery \n KC por KC"]:::metric
-        F3["Eficiencia Muestral \n Recompensa/Episodio"]:::metric
-    end
-    
-    D1 --> D2
-    D2 --> E0 & E1 & E2 & E3 & E4 & E5
-    E0 & E1 & E2 & E3 & E4 & E5 --> F1 & F2 & F3
-    
-    class D1,D2 data;
-```
-
-### Condiciones Evaluadas
-* **B0 (Random Base)**: Selección aleatoria de textos.
-* **B1 (Curriculum Fijo)**: Secuencia estática de baja a alta dificultad.
-* **B2 (Greedy Mastery)**: Selección por brecha máxima de conocimiento.
-* **B3 (DQN / A2C)**: RL Estándar (Arquitecturas base).
-* **B4 (PPO)**: Actor-Critic de vanguardia (*Model-Free*).
-* **B5 (Dyna-PPO)**: Nuestro sistema propuesto (*Model-Based*).
-
-### 🏆 Resultados Consolidados (Validación Estadística)
-
-| Condición | Tipo de Política | Promedio LG_sim | Desviación Estándar |
-|:---:|:---|:---:|:---:|
-| B0 | Heurística Aleatoria | 0.137 | ± 0.0015 |
-| B1 | Heurística Fija | 0.158 | ± 0.0016 |
-| B2 | Heurística Avara | 0.180 | ± 0.0015 |
-| B3 | RL Básico | 0.205 | ± 0.0014 |
-| B4 | PPO (*Model-Free*) | 0.239 | ± 0.0013 |
-| **B5** | **Dyna-PPO (*Model-Based*)** | **0.504** | **± 0.0014** ✅ |
-
-**Conclusiones de la Prueba de Hipótesis (HE3):**
-> El salto arquitectónico hacia la simulación MBPO (Condición B5) produce un incremento relativo del **110.8%** respecto al estado del arte (PPO - B4). El tamaño del efecto (d de Cohen) y los valores-p asintóticos (< 0.00001) confirman una **significancia estadística gigantesca**.
+$$P(y=1)=c+\frac{1-c}{1+e^{-1.7a(\theta_k-b_{adj})}}\,(1-0.1f),\qquad b_{adj}=b+(\ell-1)\cdot0.5$$
 
 ---
 
-## 📁 Estructura del Repositorio
+## 3. Feature Engineering y control de *leakage*
 
-```text
-SistemaTutorInteligente/
-├── data/
-│   └── results/           # Logs en JSON (ablation_summary.json) y matrices de covarianza.
-├── src/
-│   ├── agents.py          # Implementación DRL (PPOAgent, DynaPPOAgent).
-│   ├── environment.py     # Entorno Gymnasium (ReadingTutorEnv, Simulador IRT).
-│   ├── models.py          # Arquitecturas PyTorch (ActorCritic, WorldModel).
-│   └── config.py          # Hiperparámetros globales.
-├── generate_report.py     # Script analítico y generador de gráficos finales.
-├── requirements.txt       # Dependencias (PyTorch, Gymnasium, Numpy).
-└── README.md              # Documentación principal.
-```
+### 3.1 Conjuntos de features
+
+| Set | Rasgos | Definición |
+|---|---|---|
+| **FS0 `raw13`** (baseline) | $x_t\in\mathbb R^{13}$ de la Tabla 2 de la tesis, tal como lo emite el código | $[\theta_{1..3},\ \sigma_{1..3},\ u_{1..3},\ \tau_{1,2},\ \hat E,\ b_{t-1}]$ |
+| **FS1 `zpd4`** (Var1) | 4 rasgos **por acción** $(j,\ell)$, promediados sobre los 10 ítems del texto $j$ | $\hat p_{j\ell}=\overline{P_{3PL}}$, $\ \overline{\lvert g\rvert}$, $\ \overline{e^{-g^2/2\sigma_F^2}}$, $\ \overline{\mathbb 1[\lvert g\rvert<0.5]}$, con $g=\theta_{k_i}-b_{adj,i}$ |
+| **FS2 `hist6`** (Var2) | 6 rasgos temporales **causales** | $\text{acc}_{w5}=\frac{\sum_{s=t-5}^{t-1}y_s+1}{n+2}$, racha/5, $\text{EWMA}_{0.2}(1-y)$, one-hot($\ell_{t-1}$) |
+
+### 3.2 Por qué estos rasgos: diagnóstico solo con estudiantes de train (10 000 interacciones)
+
+| Representación de la distancia habilidad–dificultad | AUC para predecir "aprendió" |
+|---|---|
+| $-\lvert\theta-b_{adj}\rvert$ (FS1, escala del modelo generativo) | **0.925** |
+| $-\lvert\theta-\sigma(b)\rvert$ (Gap de la v1, **descartada**) | 0.640 |
+
+* **8 de los 13** rasgos de $x_t$ no llevan información en el código actual: 5 son constantes ($u_1,u_2,\tau_1,\tau_2,\hat E$) y 3 son ruido $U(0.05,0.15)$ ($\sigma$).
+* Ningún rasgo de estado predice el aprendizaje por sí solo (AUC ≈ 0.50). La señal está en la **interacción** habilidad × dificultad de la acción, y un modelo lineal no puede construir $\lvert\theta-b\rvert$ a partir de $\theta$ y $b$ por separado. Esa es la justificación de FS1.
+* El ítem concreto se muestrea **después** de decidir, así que FS1 usa el promedio de los ítems del texto y nunca mira el ítem del paso $t$.
+
+### 3.3 Cero fuga: pruebas automáticas (`python -m src.leakage_checks`)
+
+| Prueba | Resultado | Evidencia |
+|---|---|---|
+| L1 GroupKFold por estudiante | PASS | 5 folds de 20; intersección train/test = 0; cada id aparece en test exactamente una vez |
+| L2 Causalidad temporal | PASS | 200 pruebas: features$(t)$ invariantes al alterar $y_t \dots y_H$ |
+| L3 Sin espiar el ítem actual | PASS | cambiar el ítem que se muestreará en $t$ no altera $\Phi(t)$ |
+| L4 *Scaler* ajustado solo en train | PASS | 18 ids distintos, todos de train; 0 de test |
+| L5 Política congelada en test | PASS | pesos idénticos antes y después de evaluar |
+
+Además: no hay *early stopping* (las curvas de test son solo descriptivas) y los hiperparámetros se fijaron en un *pool* de desarrollo disjunto de los 100 estudiantes evaluados.
 
 ---
 
-## ⚙️ Despliegue y Reproducibilidad
+## 4. Resultados A/B
 
-El repositorio está listo para su clonación y ejecución de validación en entornos locales:
+**Diseño:** 100 estudiantes sintéticos → GroupKFold (5 folds: 80 train / 20 test) × semillas {0, 1} = **10 pares**. Mismo presupuesto: 1 500 episodios × 50 pasos = 75 000 interacciones por corrida (30 corridas). La evaluación final usa 20 estudiantes de test × 3 repeticiones, con política *greedy* y congelada.
+
+### 4.1 Tabla estándar (Slide 9)
+
+| ID experimento | Variante | $LG_{\text{sim}}$ holdout (media ± DE) | Acierto | Eventos de aprendizaje/paso | Violaciones (shield)/paso | Costo CMDP/paso | Episodios hasta el LG del baseline (mediana) | Latencia mediana (ms) | Nota (qué cambió) |
+|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|---|
+| `FE5-PPOlin_FS0_raw13-oracle-f*-s*` | Baseline | −0.0095 ± 0.0174 | 0.730 | 0.273 | 0.017 | 0.032 | 750 (10/10) | 0.031 | 13 rasgos $x_t$ de `environment.py` |
+| `FE5-PPOlin_FS1_zpd4-oracle-f*-s*` | **Var1** | **+0.0105 ± 0.0150** | 0.716 | **0.312** | 0.016 | 0.041 | **350 (10/10)** | 0.150 | + 4 rasgos ZPD por acción |
+| `FE5-PPOlin_FS2_hist6-oracle-f*-s*` | Var2 | −0.0063 ± 0.0162 | 0.737 | 0.272 | 0.015 | 0.026 | 775 (8/10) | 0.034 | + 6 rasgos temporales causales |
+
+Log: `logs/metrics_experimentos.csv` (1 fila por corrida, con config, hashes y timestamp).
+**Escala de lectura** (fold 0; no son variantes): política aleatoria −0.044; secuencia fija −0.030; heurística ZPD con oráculo +0.041; cota "acierta dentro de la ZPD en los 50 pasos" +0.326.
+
+### 4.2 Curva holdout y violaciones (Slide 10)
+
+![curvas](figures/fe/01_curvas_holdout_y_violaciones.png)
+
+### 4.3 Efecto pareado de cada cambio
+
+![diferencias](figures/fe/02_diferencias_pareadas.png)
+
+| Comparación | $\Delta LG$ | IC95 bootstrap | $p$ permutación exacta | $p_{\text{Holm}}$ | $d_z$ | Pares ganados |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| Var1 − Baseline | **+0.0200** | [+0.0130, +0.0274] | 0.002 | **0.004** | 1.61 | 10/10 |
+| Var2 − Baseline | +0.0032 | [−0.0051, +0.0122] | 0.494 | 0.494 | 0.22 | 5/10 |
+
+Secundarias de Var1 frente al baseline: eventos de aprendizaje **+0.039/paso** [+0.023, +0.056], $p_{\text{Holm}}=0.004$; acierto −0.014 [−0.029, −0.000], $p_{\text{Holm}}=0.21$; violaciones −0.001 (no significativo).
+
+---
+
+## 5. Decisión (Slide 14)
+
+**Regla:** se adopta una variante si (i) el IC95 de $\Delta LG$ es > 0 y $p_{\text{Holm}}<0.05$, (ii) el sobrecosto es < 1 ms por decisión y (iii) la tasa de violaciones no sube más de 0.01.
+
+| Variante | (i) Métrica | (ii) Costo | (iii) Seguridad | Decisión |
+|---|:---:|:---:|:---:|:---:|
+| `PPOlin_FS1_zpd4` | ✔ | ✔ (+0.119 ms) | ✔ | **ADOPTAR** |
+| `PPOlin_FS2_hist6` | ✘ | ✔ | ✔ | **DESCARTAR** (se puede re-probar sobre FS1 en el próximo sprint, como un nuevo cambio único) |
+
+---
+
+## 6. Prueba de estrés: del oráculo $\theta^*$ a una habilidad observable $\hat\theta$
+
+`environment.py` le entrega al agente la $\theta^*$ verdadera, algo imposible en aula. Re-entrenamos baseline y Var1 (5 folds, semilla 0) con un estimador Elo online (Pelánek, 2016): $\hat\theta_k\leftarrow\text{clip}(\hat\theta_k+0.1\,(y-\hat P_{3PL}))$.
+
+| | LG con $\theta^*$ | LG con $\hat\theta$ (Elo) |
+|---|:---:|:---:|
+| Baseline | −0.0106 | −0.0101 |
+| Var1 | +0.0136 | −0.0006 |
+
+Var1 − Baseline con $\hat\theta$: +0.0095, IC95 [−0.0035, +0.0176], 4/5 pares, $p=0.25$. **Lectura honesta:** la ventaja se mantiene en la dirección esperada, pero baja a la mitad y deja de ser significativa con 5 pares. El valor de FS1 depende de la calidad de $\hat\theta$. Por eso el siguiente paso es usar un estimador con incertidumbre (BKT/MSKT) en lugar de Elo.
+
+---
+
+## 7. Limitaciones, riesgos y próximos pasos
+
+1. **Magnitud:** con olvido en cada paso y H = 50, el LG alcanzable es bajo (cota ≈ 0.33). El efecto (+0.020) es pequeño en valor absoluto, aunque es consistente (10/10). Se lee contra esa escala, no contra el 0.50 de la HG.
+2. **Clase de política:** el efecto corresponde a una política lineal; con el MLP de la tesis la brecha puede reducirse. → Réplica en GPU (Semana 6).
+3. **Circularidad:** `zpd_hit` usa la ventana ±0.5 del propio simulador. → Evaluación *out-of-family* con un simulador BKT (tesis §4.3).
+4. **Riesgos:** deriva de calibración de $b$ cuando lleguen respuestas humanas; Beta(2, 2) sub-representa a estudiantes de habilidad muy baja.
+5. **Demo de la Semana 6:** un estudiante de test en vivo, baseline contra Var1, con trazas paso a paso de $\hat p$, $\lvert g\rvert$ y $\theta^*$.
+
+Preguntas esperadas, las tres iteraciones adversariales y el plan de "cómo sería con estudiantes reales": [`DEFENSA_FE_ADVERSARIAL.md`](DEFENSA_FE_ADVERSARIAL.md).
+
+---
+
+## 8. Reproducibilidad (Slide 13)
 
 ```bash
-# 1. Clonar el repositorio
-git clone https://github.com/yasminum/SistemaTutorInteligente.git
-cd SistemaTutorInteligente
-
-# 2. Instalar dependencias requeridas (Entorno Virtual Recomendado)
-pip install -r requirements.txt
-
-# 3. Regenerar el pipeline analítico
-python generate_report.py
+pip install -r requirements.txt                    # numpy, pandas, matplotlib (sin PyTorch)
+python -m src.leakage_checks                       # 5 pruebas de fuga
+python -m src.run_ab --variant PPOlin_FS0_raw13    # Baseline
+python -m src.run_ab --variant PPOlin_FS1_zpd4     # Var1
+python -m src.run_ab --variant PPOlin_FS2_hist6    # Var2
+python -m src.run_ab --all --robustness --workers 6   # todo (~3 min con 6 núcleos)
+jupyter notebook notebooks/02_Feature_Engineering.ipynb
 ```
 
-<br>
-<div align="center">
-  <p><b>Desarrollado para la sustentación de Tesis de Maestría - 2026</b></p>
-  <p><i>Grupo 2 - Universidad Nacional de Ingeniería</i></p>
-</div>
+| Artefacto | Valor |
+|---|---|
+| Snapshot de datos | `data/item_bank.csv` · SHA-256 `07ed76f0bee0a21d…` · 300 filas (`data/SNAPSHOT.json`) |
+| Código que determina los resultados | SHA-256 `8a026bbfc7285b26…` (simulator, feature_engineering, agent, experiment) |
+| Versiones | Python 3.11.15 · numpy 2.4.6 · pandas 3.0.6 · matplotlib 3.11.2 |
+| Logs | `logs/metrics_experimentos.csv`, `data/results/runs_oracle.json`, `runs_elo.json`, `references.json`, `summary.json` |
 
+```text
+feature-engineering/
+├── README.md                         ← este informe
+├── DEFENSA_FE_ADVERSARIAL.md         ← 3 iteraciones adversariales + preguntas esperadas + plan real
+├── requirements.txt
+├── notebooks/02_Feature_Engineering.ipynb   ← ejecutado, con todas las salidas
+├── src/
+│   ├── simulator.py                  ← port fiel de environment.py
+│   ├── feature_engineering.py        ← FS0/FS1/FS2, historial causal, Elo, scaler con procedencia
+│   ├── agent_ppo_linear.py           ← PPO-clip lineal (numpy)
+│   ├── experiment.py                 ← GroupKFold, entrenamiento, evaluación, estadística, logging
+│   ├── leakage_checks.py             ← pruebas L1–L5
+│   ├── diagnostics.py                ← AUC de features (solo train)
+│   ├── report.py                     ← tablas y figuras
+│   └── run_ab.py                     ← CLI
+├── data/  item_bank.csv · SNAPSHOT.json · sample/ · results/
+├── logs/metrics_experimentos.csv
+└── figures/fe/*.png
+```
+
+## Referencias
+
+* Birnbaum, A. (1968). Some latent trait models. En Lord & Novick, *Statistical Theories of Mental Test Scores*. Addison-Wesley.
+* Hake, R. R. (1998). Interactive-engagement versus traditional methods. *American Journal of Physics, 66*(1), 64–74. https://doi.org/10.1119/1.18809
+* Kaufman, S., Rosset, S., Perlich, C., & Stitelman, O. (2012). Leakage in data mining: Formulation, detection, and avoidance. *ACM TKDD, 6*(4), 1–21. https://doi.org/10.1145/2382577.2382579
+* Pelánek, R. (2016). Applications of the Elo rating system in adaptive educational systems. *Computers & Education, 98*, 169–179. https://doi.org/10.1016/j.compedu.2016.03.017
+* Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). Proximal policy optimization algorithms. arXiv:1707.06347.
+* Doroudi, S., Aleven, V., & Brunskill, E. (2019). Where's the reward? A review of reinforcement learning for instructional sequencing. *IJAIED, 29*, 568–620. https://doi.org/10.1007/s40593-019-00187-x
