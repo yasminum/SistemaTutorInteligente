@@ -96,7 +96,7 @@ Al podar las **8 columnas sin señal del estado** ($\mathbb{R}^{13} \to \mathbb{
 | **`Var1 (FS1_zpd4)` − `Baseline`** | $+0.0200$ | $[+0.0130, +0.0274]$ | $0.0020$ | $0.0060$ | $1.61$ | $10/10$ |
 | **`D1 (zpd2)` − `Baseline`** | $+0.0189$ | $[+0.0107, +0.0278]$ | $0.0039$ | $0.0078$ | $1.31$ | $9/10$ |
 | **`FS2_hist6` − `Baseline`** | $+0.0032$ | $[-0.0051, +0.0122]$ | $0.4941$ | $0.4941$ | $0.22$ | $5/10$ |
-| **`Var2 (D2_clean5_zpd2)` − `Var1 (FS1_zpd4)`** *(efecto puro de podar ruido y colinealidad)* | **$+0.0098$** | **$[+0.0021, +0.0189]$** | **$0.0137$** | **$0.0137$** | **$0.71$** | **$8/10$ ($5/5$ folds)** |
+| **`Var2 (D2_clean5_zpd2)` − `Var1 (FS1_zpd4)`** *(efecto puro de podar ruido y colinealidad)* | $+0.0098$ | $[+0.0012, +0.0204]$ | $0.0605$ | — (tendencia, no significativa al 5 %) | $0.60$ | $8/10$ ($5/5$ folds) |
 
 ---
 

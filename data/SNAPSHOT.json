@@ -1,0 +1,14 @@
+{
+  "file": "data/item_bank.csv",
+  "sha256": "07ed76f0bee0a21da9e7b820b4990dda1e8024695353c9308672b961b48d4706",
+  "bytes": 9072,
+  "rows": 300,
+  "generator": "ItemBank(seed=2026)",
+  "date_utc": "2026-10-17",
+  "env": {
+    "python": "3.11.15",
+    "numpy": "2.4.6",
+    "pandas": "3.0.6",
+    "matplotlib": "3.11.2"
+  }
+}

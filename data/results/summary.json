@@ -1,0 +1,53 @@
+{
+  "base_lg": -0.00949520098061447,
+  "variants": {
+    "PPOlin_FS1_zpd4": {
+      "decision": "ADOPTAR",
+      "metric_ok": true,
+      "cost_ok": true,
+      "safety_ok": true,
+      "mean_diff": 0.019986365596026526,
+      "ci_low": 0.012954515204296961,
+      "ci_high": 0.027425516249147523,
+      "p_perm": 0.001953125,
+      "p_Holm": 0.00390625,
+      "d_z": 1.6095847229921563,
+      "wins": 10,
+      "lg": 0.010491164615412057,
+      "lat_overhead_ms": 0.11120003182440996
+    },
+    "PPOlin_FS2_hist6": {
+      "decision": "DESCARTAR",
+      "metric_ok": false,
+      "cost_ok": true,
+      "safety_ok": true,
+      "mean_diff": 0.003220859001026917,
+      "ci_low": -0.005074438224714786,
+      "ci_high": 0.0121717359988448,
+      "p_perm": 0.494140625,
+      "p_Holm": 0.494140625,
+      "d_z": 0.22097864032628098,
+      "wins": 5,
+      "lg": -0.006274341979587553,
+      "lat_overhead_ms": 0.0039000296965241432
+    }
+  },
+  "elo": {
+    "diff": 0.009536601498686481,
+    "wins": 4,
+    "n": 5,
+    "p": 0.25
+  },
+  "refs": {
+    "random": -0.04426863121666978,
+    "fixed": -0.029851445031176326
+  },
+  "leakage_all_pass": true,
+  "n_dead_xt": 8,
+  "auc_raw": 0.9253059058137751,
+  "auc_sigmoid": 0.6395458199110293,
+  "ceilings": {
+    "Heur\u00edstica ZPD con or\u00e1culo \u03b8* (argmax zpd_hit)": 0.04112279986814246,
+    "Cota: acierto dentro de ZPD en los 50 pasos": 0.3255381091943015
+  }
+}
