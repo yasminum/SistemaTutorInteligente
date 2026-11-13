@@ -1,0 +1,1073 @@
+% !TeX program = xelatex
+% ==============================================================================
+% INFORME PARCIAL PI2 — PROYECTO DE INVESTIGACIÓN II (PLANTILLA ACADÉMICA UNI)
+% Estilo: Fondo blanco, escudo oficial UNI granate (#7B1113) + paleta vibrante
+% Cifras: Exclusivamente Régimen B verificado (summary.json, runs_oracle.json,
+%         runs_elo.json, sprint2_diagnostics.json, src/*.py) en commit 77c6cfe
+% ==============================================================================
+\documentclass[10.5pt,a4paper]{article}
+
+% --- Codificación, idioma y tipografía (XeLaTeX) ---
+\usepackage[spanish,es-tabla,es-lcroman]{babel}
+\usepackage{fontspec}
+\setsansfont{Segoe UI}[
+  BoldFont = Segoe UI Bold,
+  ItalicFont = Segoe UI Italic,
+  BoldItalicFont = Segoe UI Bold Italic
+]
+\setmainfont{Segoe UI}[
+  BoldFont = Segoe UI Bold,
+  ItalicFont = Segoe UI Italic,
+  BoldItalicFont = Segoe UI Bold Italic
+]
+\setmonofont{Consolas}[Scale=0.90]
+\renewcommand{\familydefault}{\sfdefault}
+
+% --- Geometría y espaciado ---
+\usepackage[
+  a4paper,
+  top=2.1cm,
+  bottom=2.1cm,
+  left=2.1cm,
+  right=2.1cm,
+  headheight=21pt,
+  headsep=0.55cm,
+  footskip=0.85cm
+]{geometry}
+\usepackage{setspace}
+\setstretch{1.15}
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+
+% --- Matemáticas y símbolos ---
+\usepackage{amsmath,amssymb,mathtools}
+
+% --- Gráficos, colores y tablas ---
+\usepackage[table]{xcolor}
+\usepackage{graphicx}
+\usepackage{booktabs,tabularx,array,multirow,makecell}
+\usepackage{float,caption}
+\usepackage{enumitem}
+\usepackage{needspace}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tikz,pgfplots}
+\usepgfplotslibrary{groupplots}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit}
+\pgfplotsset{compat=1.18}
+\usepackage[most]{tcolorbox}
+\usepackage{xurl}
+\usepackage[hidelinks,bookmarksopen=true,pdfencoding=auto]{hyperref}
+
+% ==============================================================================
+% PALETA DE COLORES: GRANATE UNI (#7B1113) FLUYE CON ACENTOS JOYA VIBRANTES
+% ==============================================================================
+\definecolor{UNIGranate}{HTML}{7B1113}    % Escudo UNI + ancla institucional
+\definecolor{VividMagenta}{HTML}{E11D74}  % Carmesí/magenta vibrante (D2, énfasis)
+\definecolor{ElectricBlue}{HTML}{0050FF}  % Azul eléctrico (Parte I, KPI 1)
+\definecolor{VividTeal}{HTML}{0E8C99}     % Teal vibrante (Marco teórico, flujo)
+\definecolor{AmberGold}{HTML}{D97706}     % Ámbar dorado (Objetivos, alertas)
+\definecolor{RoyalViolet}{HTML}{7B2FF7}   % Violeta real (Oráculo, Anexos)
+\definecolor{EmeraldGreen}{HTML}{0D9488}  % Verde esmeralda (Estados OK)
+
+\definecolor{InkDark}{HTML}{0F172A}       % Títulos principales
+\definecolor{BodySlate}{HTML}{1E293B}     % Cuerpo de texto sobre blanco
+\definecolor{MutedSlate}{HTML}{475569}    % Subtítulos y pies de tabla/figura
+\definecolor{RuleGray}{HTML}{CBD5E1}      % Filetes sutiles
+\definecolor{RowTintBlue}{HTML}{F4F8FF}   % Cebra azul suave
+\definecolor{RowTintRose}{HTML}{FFF1F6}   % Resalte D2 suave
+\definecolor{RowTintTeal}{HTML}{F0FDFA}   % Cebra teal suave
+\definecolor{TintAmber}{HTML}{FFFBEB}     % Callout enmienda
+\definecolor{TintRose}{HTML}{FFF1F5}      % Callout depuración
+
+\color{BodySlate}
+
+% --- Macro para barra arcoíris joya anclada en Granate UNI ---
+\newcommand{\jewelbar}[1][3.2pt]{%
+  \noindent\begin{tikzpicture}[baseline]
+    \def\segw{0.166666\textwidth}
+    \fill[UNIGranate]   (0,0) rectangle (\segw,#1);
+    \fill[VividMagenta] (\segw,0) rectangle (2*\segw,#1);
+    \fill[AmberGold]    (2*\segw,0) rectangle (3*\segw,#1);
+    \fill[VividTeal]    (3*\segw,0) rectangle (4*\segw,#1);
+    \fill[ElectricBlue] (4*\segw,0) rectangle (5*\segw,#1);
+    \fill[RoyalViolet]  (5*\segw,0) rectangle (\textwidth,#1);
+  \end{tikzpicture}\par\vspace{2pt}%
+}
+
+% --- Encabezados de parte y sección ---
+\newcommand{\partbanner}[3]{% #1: color, #2: kicker, #3: título
+  \clearpage
+  \thispagestyle{fancy}%
+  \noindent\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=#1,
+    boxrule=0pt,
+    leftrule=4.5pt,
+    bottomrule=1.5pt,
+    arc=0pt,
+    left=10pt,right=6pt,top=6pt,bottom=6pt,
+    before skip=0pt,after skip=8pt
+  ]
+    {\fontsize{8.5}{10}\selectfont\bfseries\color{#1}\MakeUppercase{#2}}\\[2pt]
+    {\fontsize{18}{22}\selectfont\bfseries\color{InkDark}#3}
+  \end{tcolorbox}%
+  \addcontentsline{toc}{section}{#3}%
+  \markboth{#3}{#3}%
+}
+
+\titleformat{\section}
+  {\fontsize{13.5}{16}\selectfont\bfseries\color{UNIGranate}}
+  {\thesection.}{0.5em}{}
+  [\vspace{1.5pt}{\color{VividMagenta}\titlerule[1.3pt]}]
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+
+\titleformat{\subsection}
+  {\fontsize{11}{13.5}\selectfont\bfseries\color{VividTeal}}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{8pt}{3pt}
+
+\titleformat{\subsubsection}
+  {\fontsize{10.2}{12.5}\selectfont\bfseries\color{InkDark}}
+  {\thesubsubsection}{0.5em}{}
+\titlespacing*{\subsubsection}{0pt}{6pt}{2pt}
+
+% --- Pie de página y cabecera ---
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{UNIGranate}\leaders\hrule height \headrulewidth\hfill}}
+\fancyhead[L]{\fontsize{8}{10}\selectfont\color{MutedSlate}\textbf{PI2 · Grupo 2 · FIIS--UNI}}
+\fancyhead[R]{\fontsize{8}{10}\selectfont\color{UNIGranate}\nouppercase{\leftmark}}
+\fancyfoot[L]{\fontsize{8}{10}\selectfont\color{MutedSlate}Plan de tesis y protocolo experimental (corte Semana 9)}
+\fancyfoot[R]{\fontsize{8.5}{10}\selectfont\color{VividMagenta}\textbf{Página \thepage\ de \pageref{LastPage}}}
+
+% --- Listas y tablas ---
+\setlist[itemize]{leftmargin=1.3em, itemsep=2pt, topsep=2pt, parsep=1pt, label=\textcolor{VividMagenta}{\scriptsize$\blacksquare$}}
+\captionsetup{font={small,color=MutedSlate},labelfont={bf,color=UNIGranate},skip=4pt}
+\renewcommand{\arraystretch}{1.22}
+
+% --- Cajas tcolorbox ---
+\newtcolorbox{calloutbox}[3][TintAmber]{% #1 tint, #2 accent, #3 title
+  enhanced,
+  breakable,
+  colback=#1,
+  colframe=#2,
+  boxrule=0pt,
+  leftrule=3.5pt,
+  arc=2pt,
+  left=9pt,right=9pt,top=6pt,bottom=6pt,
+  before skip=5pt,after skip=6pt,
+  title={\bfseries\color{#2}#3},
+  attach title to upper={\\},
+  coltitle=#2
+}
+
+\newtcolorbox{mathbox}[1][UNIGranate]{%
+  enhanced,
+  colback=RowTintBlue,
+  colframe=#1,
+  boxrule=0.6pt,
+  leftrule=3pt,
+  arc=3pt,
+  left=8pt,right=8pt,top=5pt,bottom=5pt,
+  before skip=4pt,after skip=6pt
+}
+
+% --- Atajos de código inline ---
+\newcommand{\code}[1]{\texttt{\color{InkDark}#1}}
+
+\begin{document}
+\decimalpoint
+
+% ==============================================================================
+% PORTADA
+% ==============================================================================
+\begin{titlepage}
+  \thispagestyle{empty}
+  \centering
+  \vspace*{0.2cm}
+  {\fontsize{14}{17}\selectfont\bfseries\color{UNIGranate} UNIVERSIDAD NACIONAL DE INGENIERÍA}\\[3pt]
+  {\fontsize{10.5}{13}\selectfont\bfseries\color{MutedSlate} Unidad de Posgrado · Facultad de Ingeniería Industrial y de Sistemas}\\[14pt]
+
+  \includegraphics[width=4.1cm]{uni_logo_0.jpeg}\\[14pt]
+
+  {\fontsize{34}{38}\selectfont\bfseries\color{UNIGranate} INFORME }\,{\fontsize{34}{38}\selectfont\bfseries\color{VividMagenta} PARCIAL}\\[5pt]
+  {\fontsize{11.5}{14}\selectfont\bfseries\color{VividTeal} Proyecto de Investigación II · Plan de tesis y protocolo experimental}\\[10pt]
+
+  \jewelbar[4.5pt]
+  \vspace{14pt}
+
+  \begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=UNIGranate,
+    boxrule=0.8pt,
+    leftrule=4pt,
+    rightrule=4pt,
+    arc=4pt,
+    left=14pt,right=14pt,top=12pt,bottom=12pt
+  ]
+    \centering
+    {\fontsize{13.5}{18}\selectfont\bfseries\color{InkDark}
+    Sistema de Tutoría Inteligente Adaptativa para Comprensión Lectora mediante Deep Reinforcement Learning Integrado con MSKT y NeuralCD: Un Enfoque Basado en Literatura Peruana}
+  \end{tcolorbox}
+
+  \vspace{10pt}
+  {\fontsize{10.5}{13}\selectfont \textbf{\color{RoyalViolet}Tipo de tesis:} Académica (Maestría en Inteligencia Artificial)}\\[14pt]
+
+  \begin{tcolorbox}[
+    enhanced,
+    colback=RowTintBlue,
+    colframe=RuleGray,
+    boxrule=0.5pt,
+    arc=4pt,
+    left=14pt,right=14pt,top=10pt,bottom=10pt,
+    width=0.92\textwidth
+  ]
+    \renewcommand{\arraystretch}{1.35}
+    \begin{tabularx}{\linewidth}{@{}l X@{}}
+      \textbf{\color{ElectricBlue}GRUPO 2} & \textbf{Flores Rivera, Amit Roy} · \textbf{Urrego Montoya, Yasmin} \\
+      \textbf{\color{VividMagenta}ASESORA} & Mg. Ing. María Fernanda Tejada Begazo \\
+      \textbf{\color{VividTeal}DOCENTE DEL CURSO} & Dr. Glen Dario Rodríguez Rafael \\
+      \textbf{\color{AmberGold}CORTE} & Semana 9 · Lima, 13 de noviembre de 2026 \\
+      \textbf{\color{UNIGranate}REPOSITORIO} & \url{https://github.com/yasminum/SistemaTutorInteligente} (rama \code{feat/hyperparameter-optimization}, commit \code{77c6cfe}) \\
+    \end{tabularx}
+  \end{tcolorbox}
+
+  \vfill
+  {\fontsize{8.5}{11}\selectfont\color{MutedSlate}
+  Documento académico elaborado en \LaTeX\ con exclusividad de evidencia verificada (Régimen B). Estudio \emph{in-silico}.}
+\end{titlepage}
+
+% ==============================================================================
+% RESUMEN EJECUTIVO + ÍNDICE
+% ==============================================================================
+\clearpage
+\thispagestyle{fancy}
+\markboth{Resumen ejecutivo}{Resumen ejecutivo}
+
+\noindent{\fontsize{8.5}{10}\selectfont\bfseries\color{VividMagenta}EN UNA PÁGINA}\\[-1pt]
+{\fontsize{19}{23}\selectfont\bfseries\color{UNIGranate}Resumen ejecutivo}\par
+\jewelbar[2.4pt]
+\vspace{4pt}
+
+El plan de tesis propone un tutor adaptativo de comprensión lectora que decide qué texto asignar mediante aprendizaje por refuerzo. La arquitectura objetivo combina seguimiento de conocimiento multiescala (MSKT), diagnóstico cognitivo neuronal (NeuralCD) y planificación basada en modelo (\textit{Dyna-PPO}). \textbf{Al corte de la Semana 9 está ejecutado y versionado un prototipo más acotado:} un simulador IRT-3PL con zona de desarrollo próximo (ZPD) y olvido, un agente PPO lineal (\code{src/agent\_ppo\_linear.py}) y un estudio de ingeniería de variables con validación cruzada agrupada por estudiante ($k=5$ \textit{folds} $\times$ $2$ semillas $=10$ corridas pareadas).
+
+\vspace{6pt}
+\noindent\begin{tikzpicture}
+  % Card 1
+  \node[draw=ElectricBlue, line width=0.8pt, rounded corners=4pt, fill=RowTintBlue, text width=0.282\textwidth, align=center, inner sep=6pt] (k1) at (0,0) {
+    {\fontsize{12.5}{15}\selectfont\bfseries\color{ElectricBlue}$-0.0095 \rightarrow +0.0203$}\\[3pt]
+    {\fontsize{8.2}{10.5}\selectfont\color{MutedSlate}Ganancia $\mathrm{LG}$ por episodio:\\vector crudo (\code{FS0}) $\rightarrow$ depurado (\code{D2})}
+  };
+  % Card 2
+  \node[draw=VividMagenta, line width=0.8pt, rounded corners=4pt, fill=RowTintRose, text width=0.295\textwidth, align=center, inner sep=6pt, right=0.015\textwidth of k1] (k2) {
+    {\fontsize{12.5}{15}\selectfont\bfseries\color{VividMagenta}$+0.0298$}\\[3pt]
+    {\fontsize{8.2}{10.5}\selectfont\color{MutedSlate}Diferencia pareada $\Delta\mathrm{LG}$\\IC\,95\,\% $[+0.0225,\, +0.0372]$ · $10/10$ corridas}
+  };
+  % Card 3
+  \node[draw=VividTeal, line width=0.8pt, rounded corners=4pt, fill=RowTintTeal, text width=0.282\textwidth, align=center, inner sep=6pt, right=0.015\textwidth of k2] (k3) {
+    {\fontsize{12.5}{15}\selectfont\bfseries\color{VividTeal}$49.4$\,\%}\\[3pt]
+    {\fontsize{8.2}{10.5}\selectfont\color{MutedSlate}de la heurística con oráculo\\($\mathrm{LG}_{\text{oráculo}} = +0.0411$)}
+  };
+\end{tikzpicture}
+\vspace{6pt}
+
+\begin{calloutbox}[TintRose]{UNIGranate}{Alcance verificado y componentes pendientes}
+\textit{Dyna-PPO}, la búsqueda sistemática de hiperparámetros y los estimadores aprendidos MSKT y NeuralCD \textbf{no están ejecutados} al corte de la Semana 9 y se planifican para las Semanas 10--16. Todas las conclusiones de desempeño se restringen estrictamente a estudiantes sintéticos en simulación \emph{in-silico}.
+\end{calloutbox}
+
+\vspace{6pt}
+\renewcommand{\contentsname}{\color{RoyalViolet}Índice general}
+\setcounter{tocdepth}{2}
+\tableofcontents
+
+% ==============================================================================
+% PARTE I: PLAN DE TESIS
+% ==============================================================================
+\partbanner{ElectricBlue}{Parte I · Plan de tesis (Plantilla Académica UNI)}{PARTE I. Plan de tesis}
+
+\subsection*{Datos generales}
+\addcontentsline{toc}{subsection}{Datos generales}
+
+\begin{table}[H]
+  \centering
+  \caption{Datos generales del plan de tesis.}
+  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{ElectricBlue}}p{3.6cm} X @{}}
+    \toprule
+    \rowcolor{ElectricBlue} \color{white}\textbf{Campo} & \color{white}\textbf{Información} \\
+    \midrule
+    Título & Sistema de Tutoría Inteligente Adaptativa para Comprensión Lectora mediante Deep Reinforcement Learning Integrado con MSKT y NeuralCD: Un Enfoque Basado en Literatura Peruana \\
+    \rowcolor{RowTintBlue} Autores (Grupo 2) & Flores Rivera, Amit Roy · Urrego Montoya, Yasmin \\
+    Asesora & Mg. Ing. María Fernanda Tejada Begazo \\
+    \rowcolor{RowTintBlue} Docente del curso & Dr. Glen Dario Rodríguez Rafael \\
+    Programa & Maestría en Inteligencia Artificial, Unidad de Posgrado FIIS--UNI \\
+    \rowcolor{RowTintBlue} Infraestructura & Equipos personales (CPU) y repositorio GitHub \code{yasminum/SistemaTutorInteligente}. Estudio \emph{in-silico}. \\
+    Duración y corte & 16 semanas académicas; corte de este informe: Semana 9 (13/11/2026). \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+% --- CAPÍTULO I ---
+\section{Capítulo I. Planteamiento del problema}
+
+\subsection{Diagnóstico}
+En PISA 2022, únicamente el $50$\,\% de los estudiantes peruanos de 15 años alcanzó al menos el Nivel 2 de lectura, frente al $74$\,\% del promedio OCDE (OECD, 2023). Las brechas se concentran en las capacidades inferencial y crítica definidas en el Currículo Nacional de la Educación Básica (MINEDU, 2016).
+\begin{itemize}
+  \item \textbf{Síntoma:} el estudiante recibe textos demasiado fáciles o demasiado difíciles para su nivel actual, provocando el estancamiento del aprendizaje.
+  \item \textbf{Causa técnica:} los tutores de secuencia fija no adaptan la dificultad al estado del estudiante, mientras que las políticas que optimizan únicamente el acierto inmediato tienden a asignar material fácil (Doroudi et al., 2019).
+  \item \textbf{Consecuencia:} se carece de una política de secuenciación validada cuantitativamente en simulación antes de cualquier intervención con escolares.
+\end{itemize}
+
+\subsubsection*{Problema de estudio}
+Diseñar y evaluar en simulación una política que elija, en cada uno de los $T = 50$ pasos de una sesión, el par texto–nivel cuya dificultad ajustada $b_{\text{adj}}$ mejor se acople a la habilidad $\theta_k$ del estudiante en $K = 3$ competencias lectoras (literal, inferencial y crítica).
+
+\subsubsection*{Antecedentes}
+\begin{itemize}
+  \item \textbf{Seguimiento de conocimiento:} BKT (Corbett \& Anderson, 1994), DKT (Piech et al., 2015), SAKT (Pandey \& Karypis, 2019) y SAINT+ (Shin et al., 2021) predicen la probabilidad de acierto futuro, pero no prescriben qué ítem o texto asignar. MSKT es el estimador de conocimiento previsto en la arquitectura objetivo (planificado para Semanas 13--14).
+  \item \textbf{Diagnóstico cognitivo:} NeuralCD (Wang et al., 2020) estima un perfil de dominio interpretable por competencia mediante interacción neuronal monótona.
+  \item \textbf{Secuenciación con RL:} Doroudi et al. (2019) revisan el uso de RL para secuenciación instruccional y reportan resultados sensibles al modelo del estudiante. PPO (Schulman et al., 2017) constituye el algoritmo base implementado; Dyna (Sutton, 1991) y MBPO (Janner et al., 2019) fundamentan la planificación con modelo prevista.
+\end{itemize}
+
+\subsubsection*{Formulación del problema}
+\begin{itemize}
+  \item \textbf{Problema general (PG):} ¿En qué medida una política de aprendizaje por refuerzo, alimentada con variables depuradas de acoplamiento habilidad--dificultad, mejora la ganancia de aprendizaje simulada $\mathrm{LG}$ frente a políticas base en un entorno IRT-3PL?
+  \item \textbf{PE1:} ¿Cuánto aportan las variables de acoplamiento (\code{zpd\_hit}, \code{abs\_gap}) a predecir la transición de aprendizaje y a elevar la ganancia de la política?
+  \item \textbf{PE2:} ¿Mejora la ganancia $\mathrm{LG}$ al eliminar columnas sin información y variables colineales del vector de estado?
+  \item \textbf{PE3:} ¿Mejora la ganancia y la eficiencia muestral al incorporar planificación con modelo (\textit{Dyna-PPO}) y ajuste sistemático de hiperparámetros? \textcolor{AmberGold}{\textbf{(Planificado; sin evidencia al corte.)}}
+\end{itemize}
+
+\subsection{Justificación y alcances}
+\begin{itemize}
+  \item \textbf{Justificación:} \emph{Metodológica:} establece un protocolo reproducible de selección de variables con partición agrupada por estudiante y pruebas automatizadas de no-fuga. \emph{Práctica:} entrega una base de software verificable antes de exponer a estudiantes reales. \emph{Social:} orienta el diseño curricular al 3.\textsuperscript{er} grado de secundaria en el Perú.
+  \item \textbf{Alcances:} (a) Estudio estrictamente \emph{in-silico}; ninguna conclusión se extiende a escolares reales. (b) El banco actual es paramétrico: $30\text{ textos}\times 10\text{ ítems} = 300\text{ ítems}$ con parámetros IRT muestreados (\code{bank\_seed = 2026}); su vinculación con textos de literatura peruana es trabajo planificado. (c) En el prototipo actual el agente observa la habilidad verdadera $\theta$ del simulador; sustituirla por estimadores aprendidos (MSKT, NeuralCD) es trabajo planificado.
+\end{itemize}
+
+% --- CAPÍTULO II ---
+\section{Capítulo II. Objetivos}
+\textbf{Objetivo general (OG):} Desarrollar y evaluar en simulación una política de secuenciación adaptativa de textos basada en aprendizaje por refuerzo que maximice la ganancia de aprendizaje $\mathrm{LG}$ en comprensión lectora.
+
+\begin{table}[H]
+  \centering
+  \caption{Objetivos específicos y estado de avance al corte de la Semana 9.}
+  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{AmberGold}}p{2.3cm} X p{4.2cm} @{}}
+    \toprule
+    \rowcolor{AmberGold} \color{white}\textbf{Objetivo} & \color{white}\textbf{Descripción} & \color{white}\textbf{Estado al corte} \\
+    \midrule
+    OE1 & Determinar el aporte de las variables de acoplamiento ZPD (\code{zpd\_hit}, \code{abs\_gap}). & \textbf{\color{EmeraldGreen}Ejecutado} \\
+    \rowcolor{RowTintBlue} OE2 & Evaluar el efecto de depurar el estado (eliminación de columnas muertas y colineales). & \textbf{\color{AmberGold}Ejecutado; no concluyente} \\
+    OE3 & Evaluar \textit{Dyna-PPO}, búsqueda de hiperparámetros y estimadores MSKT/NeuralCD. & \textbf{\color{MutedSlate}Planificado (Sem. 10--16)} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+% --- CAPÍTULO III ---
+\clearpage
+\section{Capítulo III. Marco teórico}
+
+\subsection{Bases teóricas}
+Siguiendo a Kintsch (1998) y al Currículo Nacional, se modelan $K = 3$ competencias lectoras (literal, inferencial y crítica). En cada paso $t \in \{1,\dots,50\}$, la probabilidad de acierto de un estudiante con habilidad $\theta_k \in [0,1]$ sobre un ítem con discriminación $a_j$, dificultad ajustada $b_{\text{adj},j}$ y parámetro de azar $c$ sigue el modelo logístico IRT-3PL (Birnbaum, 1968):
+\begin{mathbox}[VividTeal]
+\begin{equation}
+  P(Y_{t,j} = 1 \mid \theta_k, a_j, b_{\text{adj},j}, c) = c + \frac{1 - c}{1 + \exp\!\big(-1.7\, a_j (\theta_k - b_{\text{adj},j})\big)},
+  \label{eq:irt3pl}
+\end{equation}
+donde $a_j \sim \mathcal{U}(0.8,\,2.0)$, $b_j \sim \mathcal{N}(0,\,1)$, $c = 0.25$ y $b_{\text{adj},j} = b_j + (\text{nivel} - 1)\cdot 0.5$ para $\text{nivel} \in \{0,1,2\}$. La ejecución de la respuesta modula $P$ por fatiga según $P_{\text{ef}} = P\cdot(1 - 0.1\,\text{fatiga})$.
+\end{mathbox}
+
+\subsubsection*{Zona de desarrollo próximo (ZPD) y olvido}
+El simulador (\code{src/simulator.py}) incrementa la habilidad solo cuando el acierto ocurre dentro de la ventana de zona de desarrollo próximo (Vygotsky, 1978; Csikszentmihalyi, 1990) $|\theta_k - b_{\text{adj},j}| < 0.5$, seguido de un decaimiento multiplicativo por olvido en cada paso:
+\begin{mathbox}[VividMagenta]
+\begin{align}
+  \theta_k^{+} &= \theta_k + u\,(1 - \theta_k)\cdot \mathbf{1}\!\big[|\theta_k - b_{\text{adj},j}| < 0.5 \;\land\; Y_{t,j}=1\big], \qquad u \sim \mathcal{U}(0.02,\, 0.05), \label{eq:learn} \\
+  \theta_m^{\text{next}} &= \mathrm{clip}\!\Big(\theta_m^{+} \cdot (1 - \delta_m),\; 0,\; 1\Big), \qquad \delta_m \sim \mathcal{U}(0.001,\, 0.005),\quad m \in \{1,2,3\}. \label{eq:forget}
+\end{align}
+\end{mathbox}
+
+\subsubsection*{Política PPO lineal y recompensa escalar}
+El prototipo (\code{src/agent\_ppo\_linear.py}) implementa optimización de política proximal (PPO; Schulman et al., 2017) con política softmax lineal sobre las 90 acciones ($30\text{ textos} \times 3\text{ niveles}$) y estimación de ventaja generalizada GAE($\gamma,\lambda$) (Schulman et al., 2016):
+\begin{mathbox}[ElectricBlue]
+\begin{equation}
+  L^{\mathrm{CLIP}}(\phi) = \hat{\mathbb{E}}_t\!\left[\min\!\Big(r_t(\phi)\hat{A}_t,\; \mathrm{clip}\big(r_t(\phi),\, 1-\epsilon,\, 1+\epsilon\big)\hat{A}_t\Big)\right], \qquad r_t(\phi) = \frac{\pi_\phi(a_t \mid s_t)}{\pi_{\phi_{\text{old}}}(a_t \mid s_t)},\;\; \epsilon = 0.2,
+  \label{eq:ppo}
+\end{equation}
+con $\hat{A}_t = \sum_{l=0}^{T-t-1} (\gamma\lambda)^l \delta_{t+l}^V$ ($\gamma=0.99$, $\lambda=0.95$), penalización de entropía $0.01$, $lr_\pi = 0.02$ y $lr_V = 0.01$. La recompensa del entorno replica $R_t = \mathrm{clip}(0.5\,\Delta KS + 0.25\,\hat{E} + 0.25\,\hat{F} - 0.5\,\mathrm{costo},\,-1,\,1)$ y un escudo de seguridad fuerza $\text{nivel}=0$ cuando la racha de errores $\ge 4$.
+\end{mathbox}
+
+\subsubsection*{Planificación con modelo y seguridad (arquitectura objetivo)}
+Dyna (Sutton, 1991; Sutton \& Barto, 2018) con \textit{rollouts} cortos (Janner et al., 2019) y restricciones CMDP (Altman, 1999; García \& Fernández, 2015) forman parte de la arquitectura objetivo aún no implementada (Semanas 10--14).
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+    node distance=0.45cm and 0.55cm,
+    box/.style={draw=#1, line width=1pt, fill=#1!10, rounded corners=4pt, text width=3.35cm, minimum height=1.55cm, align=center, font=\small},
+    planbox/.style={draw=#1, line width=1pt, dashed, fill=white, rounded corners=4pt, text width=4.65cm, minimum height=1.38cm, align=center, font=\small},
+    arr/.style={-{Stealth[length=2.3mm,width=1.8mm]}, line width=1.1pt, color=InkDark},
+    darr/.style={-{Stealth[length=2.1mm,width=1.6mm]}, line width=0.95pt, dashed, color=RoyalViolet}
+  ]
+    % Fila superior: implementado
+    \node[box=ElectricBlue] (sim) {\textbf{\color{ElectricBlue}Simulador IRT-3PL}\\{\footnotesize 30 textos $\times$ 10 ítems\\ZPD $|\theta_k - b_{\text{adj}}|<0.5$ + olvido}};
+    \node[box=VividMagenta, right=of sim] (vec) {\textbf{\color{VividMagenta}Vector \code{D2} (7 vars.)}\\{\footnotesize \code{zpd\_hit}, \code{abs\_gap}, $\theta_1..\theta_3$\\ \code{b\_prev\_raw}, \code{u\_progress}}};
+    \node[box=VividTeal, right=of vec] (ppo) {\textbf{\color{VividTeal}Agente PPO lineal}\\{\footnotesize \code{src/agent\_ppo\_linear.py}\\5 \textit{folds} $\times$ 2 semillas}};
+    \node[box=AmberGold, right=of ppo] (shd) {\textbf{\color{AmberGold}Escudo de racha}\\{\footnotesize racha $\ge 4 \Rightarrow \text{nivel}=0$\\(regla en simulador)}};
+
+    \draw[arr] (sim) -- (vec);
+    \draw[arr] (vec) -- (ppo);
+    \draw[arr] (ppo) -- (shd);
+
+    % Etiqueta banda superior
+    \node[anchor=south west, font=\footnotesize\bfseries, color=UNIGranate] at ($(sim.north west)+(0,0.14)$) {BLOQUES EJECUTADOS AL CORTE (SEMANA 9)};
+
+    % Fila inferior: planificado
+    \node[planbox=RoyalViolet, below=1.35cm of sim.south west, anchor=north west, xshift=0.35cm] (mskt) {\textbf{\color{RoyalViolet}MSKT + NeuralCD} {\scriptsize(Sem. 13--14)}\\{\footnotesize Estimar $\hat{\theta}_k$ desde respuestas\\(reemplaza al oráculo $\theta^*$)}};
+    \node[planbox=UNIGranate, right=0.55cm of mskt] (dyna) {\textbf{\color{UNIGranate}Modelo de mundo + Dyna-PPO} {\scriptsize(Sem. 10--11)}\\{\footnotesize Planificación con \textit{rollouts} cortos\\sobre banco de narrativa peruana}};
+    \node[planbox=VividTeal, right=0.55cm of dyna] (hpo) {\textbf{\color{VividTeal}HPO + Confirmación} {\scriptsize(Sem. 12--14)}\\{\footnotesize Búsqueda fijada a priori y\\particiones nuevas independientes}};
+
+    \draw[darr] (mskt.north) -- ++(0,0.68) -| (vec.south);
+    \draw[darr] (dyna.north) -- ++(0,0.68) -| (ppo.south);
+    \draw[darr] (hpo.north) -- ++(0,0.48) -| (shd.south);
+
+    \node[anchor=north west, font=\footnotesize\bfseries, color=RoyalViolet] at ($(mskt.south west)+(0,-0.14)$) {ARQUITECTURA OBJETIVO PLANIFICADA (LÍNEA DISCONTINUA · SEMANAS 10--16)};
+  \end{tikzpicture}
+  \caption{Arquitectura del sistema: bloques implementados y ejecutados (arriba, trazo continuo) frente a componentes planificados (abajo, trazo discontinuo). La figura no contiene cifras de resultados.}
+  \label{fig:arquitectura}
+\end{figure}
+
+\subsection{Definición de términos}
+\begin{itemize}
+  \item \textbf{Ganancia normalizada de Hake ($\mathrm{LG}$; Hake, 1998):} medida sobre la habilidad verdadera promedio $\bar{\theta}=\frac{1}{3}\sum_{k=1}^3 \theta_k$ al inicio y término de los $T=50$ pasos en alumnos no vistos:
+  \begin{equation}
+    \mathrm{LG} = \frac{\bar{\theta}_{\text{post}} - \bar{\theta}_{\text{pre}}}{1 - \bar{\theta}_{\text{pre}}}.
+    \label{eq:lg}
+  \end{equation}
+  \item \textbf{Variables de acoplamiento ZPD:} $\mathrm{zpd\_hit} = \mathbf{1}\!\big[|\theta_k - b_a| < 0.5\big]$ y $\mathrm{abs\_gap} = |\theta_k - b_a|$ evaluadas antes de ejecutar la acción candidata.
+  \item \textbf{Referencia de oráculo ZPD:} heurística que conoce $\theta^*$ verdadero del simulador y selecciona la acción que maximiza el indicador esperado de ZPD ($\mathrm{LG} = +0.0411$).
+\end{itemize}
+
+\subsection{Hipótesis y variables}
+
+\begin{calloutbox}[TintAmber]{AmberGold}{Enmienda al protocolo}
+El umbral original $\mathrm{LG} \ge 0.50$ se retira formalmente: el propio simulador acota la ganancia máxima con acierto dentro de la ZPD en los 50 pasos en $\mathrm{LG}_{\max} = 0.3255$, y la heurística con oráculo $\theta^*$ obtiene $+0.0411$ (\code{summary.json}). Las hipótesis se reformulan en términos de diferencias pareadas $\Delta\mathrm{LG}$ y de fracción respecto del oráculo.
+\end{calloutbox}
+
+\begin{table}[H]
+  \centering
+  \caption{Hipótesis de investigación y estado de contrastación al corte.}
+  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{VividTeal}}p{1.6cm} X p{6.8cm} @{}}
+    \toprule
+    \rowcolor{VividTeal} \color{white}\textbf{Hipótesis} & \color{white}\textbf{Enunciado} & \color{white}\textbf{Estado al corte} \\
+    \midrule
+    HG & PPO con el vector depurado de 7 variables (\code{D2}) supera a PPO con el vector crudo (\code{FS0}) y a las políticas aleatoria y de currículo fijo. & Respaldada de forma exploratoria ($+0.0298$, $10/10$ corridas). Criterio confirmatorio propuesto (a fijar con la asesora): particiones y semillas nuevas, IC\,95\,\% sin incluir $0$ y $\ge 40$\,\% del oráculo. \\
+    \rowcolor{RowTintTeal} HE1 & \code{zpd\_hit} y \code{abs\_gap} son las dos variables más informativas del vector de estado--acción. & Parcialmente confirmada ($\Delta\mathrm{AUC}$ posiciones 1 y 2; $|\mathrm{SHAP}|$ posiciones 1 y 4). \\
+    HE2 & Depurar el estado mejora la ganancia frente al vector completo con 4 variables ZPD (\code{FS1}). & No confirmada a $\alpha = 0.05$ ($p = 0.0605$, $d_z = 0.60$, $8/10$ corridas). \\
+    \rowcolor{RowTintTeal} HE3 & \textit{Dyna-PPO} con hiperparámetros ajustados supera a PPO sin modelo. & No evaluada (planificada para Semanas 10--14). \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{itemize}
+  \item \textbf{Variables independientes:} conjunto de variables de estado--acción (\code{FS0}, \code{FS2}, \code{D1}, \code{FS1}, \code{D2}) y tipo de política.
+  \item \textbf{Variable dependiente:} ganancia de aprendizaje simulada $\mathrm{LG}$.
+  \item \textbf{Indicadores:} $\mathrm{LG}$ por episodio, diferencia pareada $\Delta\mathrm{LG}$ con IC\,95\,\%, $p_{\text{perm}}$, $d_z$, $\Delta\mathrm{AUC}$ por permutación, $|\mathrm{SHAP}|$ medio y $\mathrm{VIF}$.
+\end{itemize}
+
+% --- CAPÍTULO IV ---
+\Needspace{12\baselineskip}
+\section{Capítulo IV. Diseño metodológico}
+
+\begin{table}[H]
+  \centering
+  \caption{Resumen del diseño metodológico (Semanas 4--9).}
+  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{RoyalViolet}}p{3.6cm} X @{}}
+    \toprule
+    \rowcolor{RoyalViolet} \color{white}\textbf{Aspecto} & \color{white}\textbf{Decisión metodológica} \\
+    \midrule
+    4.1 Tipo & Investigación aplicada, cuantitativa, experimental computacional (\emph{in-silico}). \\
+    \rowcolor{RowTintBlue} 4.2 Nivel & Explicativo dentro del simulador: se manipula el vector de variables manteniendo constantes los estudiantes, particiones y semillas. \\
+    4.3 Método & Sprints semanales versionados en GitHub: EDA, ingeniería de variables, auditoría de datos, importancia de variables. \\
+    \rowcolor{RowTintBlue} 4.4 Población y muestra & 100 estudiantes sintéticos; validación cruzada agrupada (\code{GroupKFold}, $k=5$ \textit{folds}: 80 entrenamiento / 20 validación sin traslape de identidad). \\
+    4.5 Diseño & Pareado: cada variante se entrena y evalúa sobre las mismas 10 corridas ($5\text{ folds} \times 2\text{ semillas}$). \\
+    \rowcolor{RowTintBlue} 4.6 Instrumentos & Simulador (\code{src/simulator.py}), agente (\code{src/agent\_ppo\_linear.py}), corredor experimental (\code{src/experiment.py}) y registros JSON/CSV en \code{data/results/}. \\
+    4.7 Análisis estadístico & Diferencia pareada $\bar{d}$ con IC\,95\,\% bootstrap percentil ($B=10\,000$), prueba exacta de permutación de signos, corrección de Holm (1979), tamaño del efecto $d_z = \bar{d}/s_d$ (Cohen, 1988), $\Delta\mathrm{AUC}$ por permutación, $|\mathrm{SHAP}|$ (Lundberg \& Lee, 2017) y $\mathrm{VIF}$. \\
+    \rowcolor{RowTintBlue} 4.8 Etapas & Cuatro ejecutadas (Semanas 4--7); Semanas 8--9 dedicadas al saneamiento de evidencia y este informe; cierre en Semanas 10--16. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+% --- CAPÍTULO V ---
+\clearpage
+\section{Capítulo V. Administración del plan}
+
+\subsection{Cronograma}
+\begin{table}[H]
+  \centering
+  \caption{Cronograma de 16 semanas.}
+  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{UNIGranate}}p{1.7cm} X p{4.6cm} p{2.4cm} @{}}
+    \toprule
+    \rowcolor{UNIGranate} \color{white}\textbf{Semanas} & \color{white}\textbf{Actividad} & \color{white}\textbf{Producto verificable} & \color{white}\textbf{Estado} \\
+    \midrule
+    1--3 & Simulador IRT-3PL y banco paramétrico & \code{src/simulator.py} & \textbf{\color{EmeraldGreen}Hecho} \\
+    \rowcolor{RowTintBlue} 4 & Análisis exploratorio (EDA) & Rama \code{eda} (\code{723cbf8}) & \textbf{\color{EmeraldGreen}Hecho} \\
+    5 & Variables ZPD y pruebas de no-fuga & Rama \code{feature-engineering} & \textbf{\color{EmeraldGreen}Hecho} \\
+    \rowcolor{RowTintBlue} 6--7 & Auditoría, importancia y matriz de consistencia & \code{summary.json}, \code{runs\_oracle.json} & \textbf{\color{EmeraldGreen}Hecho} \\
+    8--9 & Depuración de evidencia e informe parcial & Este informe (\LaTeX/PDF) & \textbf{\color{EmeraldGreen}Hecho} \\
+    \rowcolor{RowTintBlue} 10--11 & Modelo del mundo, \textit{Dyna-PPO} y ablación real & Código y logs por corrida & \color{MutedSlate}Planificado \\
+    12 & Búsqueda sistemática de hiperparámetros & Registro de trials por script & \color{MutedSlate}Planificado \\
+    \rowcolor{RowTintBlue} 13--14 & Estimador de habilidad aprendido y evaluación confirmatoria & Tabla confirmatoria & \color{MutedSlate}Planificado \\
+    15--16 & Redacción final y sustentación & Informe final y \emph{release} & \color{MutedSlate}Planificado \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Presupuesto y financiamiento}
+Sin desembolso monetario directo: se emplea software libre (Python, NumPy, scikit-learn, \LaTeX) y equipos personales de cómputo. El aporte es íntegramente en especie (horas de investigación de los dos autores y tiempo de CPU). Proyecto autofinanciado.
+
+% ==============================================================================
+% PARTE II: PROTOCOLO Y AVANCE EXPERIMENTAL
+% ==============================================================================
+\partbanner{VividMagenta}{Parte II · Protocolo y resultados verificados}{PARTE II. Protocolo y avance experimental}
+
+\section{Datos y material de estudio}
+\begin{itemize}
+  \item \textbf{6.1 Origen:} datos $100$\,\% sintéticos generados determinísticamente por el simulador. Código, artefactos y registros versionados en GitHub (véase Anexo B).
+  \item \textbf{6.2 Estructura y EDA:} $100$ estudiantes $\times 50$ pasos por sesión. Al vector crudo de $13$ variables se añadieron $4$ variables de acoplamiento ZPD. La auditoría centrada en datos (\code{sprint2\_diagnostics.json}) detectó $8$ columnas sin variación informativa ($\code{n\_dead\_xt} = 8$): cinco marcadores constantes (\code{u\_acc}, \code{u\_streak}, \code{tau\_1}, \code{tau\_2}, \code{E\_hat}) y tres de incertidumbre (\code{sigma\_1..3}) constantes. Asimismo, \code{zpd\_prox} y \code{signed\_gap} exhiben alta colinealidad con \code{zpd\_hit} ($r = 0.850$) y \code{abs\_gap}.
+  \item \textbf{6.3 Ética:} no existen datos personales ni interacción con menores. Toda prueba futura con escolares requerirá aprobación de comité de ética y consentimiento informado.
+  \item \textbf{6.4 Control de fugas:} partición agrupada por \code{student\_id}, características ZPD construidas exclusivamente con información previa a la acción y escaladores ajustados únicamente sobre el subconjunto de entrenamiento. Verificación automática: $\code{leakage\_all\_pass} = \code{true}$ ($5/5$ pruebas).
+\end{itemize}
+
+\section{Protocolo experimental}
+\begin{itemize}
+  \item \textbf{7.1 Preguntas experimentales:} \textbf{E1:} ¿Las variables ZPD incrementan $\mathrm{LG}$ frente al vector crudo? \textbf{E2:} ¿Aporta el historial temporal? \textbf{E3:} ¿Mejora la ganancia al depurar variables muertas y colineales? \textbf{E4:} ¿Cómo responde la ventaja cuando $\theta$ se estima con ruido (Elo en línea)?
+  \item \textbf{7.2 Particiones:} \code{GroupKFold} con $k=5$ \textit{folds} por estudiante ($\code{fold\_seed}=2026$) y $2$ semillas de entrenamiento ($\{0,1\}$) por \textit{fold}.
+  \item \textbf{7.3 Métricas y estadística:} métrica primaria $\mathrm{LG}$ (ec.~\ref{eq:lg}) en alumnos de validación. Comparación pareada frente a \code{FS0\_raw13}: diferencia media $\bar{d}$ con IC\,95\,\% bootstrap percentil ($B=10\,000$), prueba exacta de permutación de signos (mínimo alcanzable $2/2^{10} = 2/1024 \approx 0.00195$), corrección de Holm y $d_z = \bar{d}/s_d$. \textbf{Limitación declarada:} las dos semillas dentro de un mismo \textit{fold} comparten partición de evaluación, por lo que los $p$-valores son aproximados.
+\end{itemize}
+
+\begin{table}[H]
+  \centering
+  \caption{Políticas de referencia y variantes evaluadas (Sección 7.4).}
+  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{VividTeal}}p{4.3cm} X @{}}
+    \toprule
+    \rowcolor{VividTeal} \color{white}\textbf{Identificador} & \color{white}\textbf{Descripción} \\
+    \midrule
+    Aleatoria / Currículo fijo & Políticas de referencia sin aprendizaje (selección uniforme; secuencia fija de textos en nivel medio). \\
+    \rowcolor{RowTintTeal} \code{FS0\_raw13} & PPO lineal con las 13 variables crudas del estado (línea base). \\
+    \code{FS2\_hist6} & \code{FS0} $+$ 6 variables de historial temporal. \\
+    \rowcolor{RowTintTeal} \code{D1\_zpd2} & \code{FS0} $+$ \code{zpd\_hit} y \code{abs\_gap}. \\
+    \code{FS1\_zpd4} & \code{FS0} $+$ 4 variables de acoplamiento ZPD. \\
+    \rowcolor{RowTintTeal} \code{D2\_clean5\_zpd2} & 5 variables de estado limpias (\code{theta\_1..3}, \code{b\_prev\_raw}, \code{u\_progress}) $+$ \code{zpd\_hit} y \code{abs\_gap} ($7$ variables). \\
+    Oráculo ZPD & Heurística con $\theta^*$ verdadero que maximiza \code{zpd\_hit} (referencia superior). \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{itemize}
+  \item \textbf{7.5 Ingeniería de atributos:} reducción de $17$ variables candidatas a $7$ retenidas (descarte de $8$ columnas muertas y $2$ colineales).
+  \item \textbf{7.6 Hiperparámetros:} configuración fija sin búsqueda: $1\,500$ episodios de entrenamiento, $lr_\pi = 0.02$, $lr_V = 0.01$, $\epsilon_{\text{clip}} = 0.2$, coeficiente de entropía $0.01$, $\gamma = 0.99$, $\lambda = 0.95$. La búsqueda sistemática queda planificada para la Semana 12.
+  \item \textbf{7.7 Reproducibilidad:} semillas, hiperparámetros y huellas SHA-256 de código y datos almacenadas en \code{runs\_oracle.json}; pruebas unitarias en \code{tests/test\_leakage\_checks.py}.
+\end{itemize}
+
+\section{Resultados parciales y evidencia}
+
+\subsection{Estado de implementación}
+
+\begin{calloutbox}[TintRose]{VividMagenta}{Depuración de evidencia respecto del avance de la Semana 8}
+Las cifras de ablación \code{B0}--\code{B5} y de optimización de hiperparámetros reportadas en el borrador previo ($\mathrm{LG}$ entre $0.50$ y $0.53$) no provenían de corridas ejecutadas sobre el código versionado. Fueron retiradas junto con sus figuras sintéticas tanto del informe como de la rama de entrega.
+\end{calloutbox}
+
+\begin{table}[H]
+  \centering
+  \caption{Estado de implementación de componentes al corte de la Semana 9.}
+  \begin{tabularx}{\textwidth}{@{} X >{\bfseries}p{3.6cm} @{}}
+    \toprule
+    \rowcolor{UNIGranate} \color{white}\textbf{Componente del sistema} & \color{white}\textbf{Estado} \\
+    \midrule
+    Simulador IRT-3PL con ventana ZPD y olvido multiplicativo & \color{EmeraldGreen}Ejecutado \\
+    \rowcolor{RowTintBlue} Variables ZPD, auditoría de columnas e importancia ($\Delta\mathrm{AUC}$, $|\mathrm{SHAP}|$, $\mathrm{VIF}$) & \color{EmeraldGreen}Ejecutado \\
+    Agente PPO lineal evaluado en 10 corridas pareadas (\code{oracle}) y 5 \textit{folds} (\code{elo}) & \color{EmeraldGreen}Ejecutado \\
+    \rowcolor{RowTintBlue} Modelo del mundo y planificación \textit{Dyna-PPO} & \color{MutedSlate}Planificado \\
+    Búsqueda sistemática de hiperparámetros (HPO) & \color{MutedSlate}Planificado \\
+    \rowcolor{RowTintBlue} Estimadores cognitivos aprendidos MSKT y NeuralCD & \color{MutedSlate}Planificado \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Comparación cuantitativa}
+
+\begin{table}[H]
+  \centering
+  \caption{Desempeño en alumnos no vistos ($10$ corridas pareadas: $5$ \textit{folds} $\times$ $2$ semillas). Fuente: \code{summary.json} y \code{runs\_oracle.json}.}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabularx}{\textwidth}{@{} l c c c c c l @{}}
+    \toprule
+    \rowcolor{ElectricBlue}
+    \color{white}\textbf{Política / vector} &
+    \color{white}\textbf{$\mathrm{LG}$ (media $\pm$ DE)} &
+    \color{white}\textbf{$\Delta\mathrm{LG}$ vs. \code{FS0} [IC\,95\,\%]} &
+    \color{white}\textbf{$p_{\text{perm}}$} &
+    \color{white}\textbf{$d_z$} &
+    \color{white}\textbf{Vict.} &
+    \color{white}\textbf{Decisión} \\
+    \midrule
+    Aleatoria & $-0.0443$ & --- & --- & --- & --- & Referencia \\
+    \rowcolor{RowTintBlue} Currículo fijo & $-0.0299$ & --- & --- & --- & --- & Referencia \\
+    \code{FS0\_raw13} & $-0.0095 \pm 0.0174$ & --- & --- & --- & --- & Línea base \\
+    \rowcolor{RowTintBlue} \code{FS2\_hist6} & $-0.0063 \pm 0.0162$ & $+0.0032\ [-0.0051,\, +0.0122]$ & $0.494$ & $0.22$ & $5/10$ & Descartada \\
+    \code{D1\_zpd2} & $+0.0094 \pm 0.0159$ & $+0.0189\ [+0.0107,\, +0.0278]$ & $0.0039$ & $1.30$ & $9/10$ & Intermedia \\
+    \rowcolor{RowTintBlue} \code{FS1\_zpd4} & $+0.0105 \pm 0.0150$ & $+0.0200\ [+0.0130,\, +0.0274]$ & $0.00195$ {\scriptsize(Holm $0.0039$)} & $1.61$ & $10/10$ & Adoptada \\
+    \rowcolor{RowTintRose}
+    \textbf{\color{VividMagenta}\code{D2\_clean5\_zpd2}} &
+    \textbf{\color{VividMagenta}$+0.0203 \pm 0.0167$} &
+    \textbf{\color{VividMagenta}$+0.0298\ [+0.0225,\, +0.0372]$} &
+    \textbf{\color{VividMagenta}$0.00195$} &
+    \textbf{\color{VividMagenta}$2.40$} &
+    \textbf{\color{VividMagenta}$10/10$} &
+    \textbf{\color{VividMagenta}Seleccionada} \\
+    Oráculo ZPD & $+0.0411$ & --- & --- & --- & --- & Ref. superior \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+% --- FIGURA 2: ESCALERA DE POLÍTICAS (PGFPLOTS VECTORIAL) ---
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+      width=0.86\textwidth,
+      height=6.2cm,
+      ybar=0pt,
+      bar shift=0pt,
+      bar width=23pt,
+      ymin=-0.058, ymax=0.054,
+      scaled y ticks=false,
+      ylabel={$\mathrm{LG}$ por episodio (alumnos no vistos)},
+      ylabel style={font=\small\bfseries, color=InkDark},
+      xtick={0,1,2,3,4,5,6},
+      xticklabels={
+        {\shortstack{Aleatoria\\\vphantom{f}}},
+        {\shortstack{Currículo\\fijo}},
+        {\shortstack{\code{FS0}\\crudo (13)}},
+        {\shortstack{\code{FS2}\\+historial}},
+        {\shortstack{\code{D1}\\+2 ZPD}},
+        {\shortstack{\code{FS1}\\+4 ZPD}},
+        {\shortstack{\code{D2}\\7 limpias}}
+      },
+      xticklabel style={font=\footnotesize\bfseries, color=InkDark, align=center},
+      ytick={-0.04,-0.02,0,0.02,0.04},
+      yticklabel style={font=\footnotesize, /pgf/number format/fixed, /pgf/number format/precision=2, /pgf/number format/fixed zerofill=true},
+      ymajorgrids=true,
+      grid style={RuleGray!55},
+      axis lines*=left,
+      enlarge x limits=0.09,
+      clip=false
+    ]
+      % Cero y línea de oráculo
+      \draw[InkDark, line width=0.8pt] (axis cs:-0.6,0) -- (axis cs:6.6,0);
+      \draw[RoyalViolet, dashed, line width=1.4pt] (axis cs:-0.6,0.0411) -- (axis cs:6.6,0.0411);
+      \node[anchor=south west, font=\footnotesize\bfseries, color=RoyalViolet, fill=white, inner sep=1.5pt] at (axis cs:-0.5,0.0422) {Referencia oráculo ZPD $= +0.0411$};
+
+      % Barras individuales coloreadas con la paleta vibrante (bar shift=0pt -> centradas en 0..6)
+      \addplot[fill=MutedSlate!65, draw=MutedSlate] coordinates {(0,-0.0443)};
+      \addplot[fill=MutedSlate!85, draw=MutedSlate] coordinates {(1,-0.0299)};
+      \addplot[fill=ElectricBlue, draw=ElectricBlue, error bars/.cd, y dir=both, y explicit, error bar style={color=InkDark, line width=1pt}]
+        coordinates {(2,-0.0095) +- (0,0.0174)};
+      \addplot[fill=ElectricBlue!55, draw=ElectricBlue, error bars/.cd, y dir=both, y explicit, error bar style={color=InkDark, line width=1pt}]
+        coordinates {(3,-0.0063) +- (0,0.0162)};
+      \addplot[fill=VividTeal, draw=VividTeal, error bars/.cd, y dir=both, y explicit, error bar style={color=InkDark, line width=1pt}]
+        coordinates {(4,0.0094) +- (0,0.0159)};
+      \addplot[fill=AmberGold, draw=AmberGold, error bars/.cd, y dir=both, y explicit, error bar style={color=InkDark, line width=1pt}]
+        coordinates {(5,0.0105) +- (0,0.0150)};
+      \addplot[fill=VividMagenta, draw=UNIGranate, line width=0.9pt, error bars/.cd, y dir=both, y explicit, error bar style={color=InkDark, line width=1pt}]
+        coordinates {(6,0.0203) +- (0,0.0167)};
+
+      % Etiquetas numéricas sin colisión con barras de error
+      \node[anchor=north, font=\footnotesize\bfseries, color=MutedSlate, fill=white, inner sep=1pt] at (axis cs:0,-0.0458) {$-0.0443$};
+      \node[anchor=north, font=\footnotesize\bfseries, color=MutedSlate, fill=white, inner sep=1pt] at (axis cs:1,-0.0314) {$-0.0299$};
+      \node[anchor=south, font=\footnotesize\bfseries, color=ElectricBlue, fill=white, inner sep=1pt] at (axis cs:2,0.0092) {$-0.0095$};
+      \node[anchor=south, font=\footnotesize\bfseries, color=ElectricBlue, fill=white, inner sep=1pt] at (axis cs:3,0.0112) {$-0.0063$};
+      \node[anchor=south, font=\footnotesize\bfseries, color=VividTeal, fill=white, inner sep=1pt] at (axis cs:4,0.0268) {$+0.0094$};
+      \node[anchor=south, font=\footnotesize\bfseries, color=AmberGold, fill=white, inner sep=1pt] at (axis cs:5,0.0270) {$+0.0105$};
+      \node[anchor=south, font=\footnotesize\bfseries, color=UNIGranate, fill=white, inner sep=1pt] at (axis cs:6,0.0385) {$+0.0203$};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Escalera de políticas: ganancia $\mathrm{LG}$ por episodio (media $\pm$ $1\;\mathrm{DE}$ sobre $10$ corridas pareadas). Fuente: \code{summary.json} y \code{runs\_oracle.json}.}
+  \label{fig:escalera}
+\end{figure}
+
+% --- FIGURA 3: FOREST PLOT (PGFPLOTS VECTORIAL) ---
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+      width=0.46\textwidth,
+      height=4.8cm,
+      xmin=-0.008, xmax=0.044,
+      ymin=-0.6, ymax=3.6,
+      scaled x ticks=false,
+      xlabel={$\Delta\mathrm{LG}$ frente a \code{FS0\_raw13} (IC\,95\,\% bootstrap percentil)},
+      xlabel style={font=\small\bfseries, color=InkDark},
+      ytick={0,1,2,3},
+      yticklabels={
+        {\textbf{\color{MutedSlate}\code{FS2} · +historial}},
+        {\textbf{\color{VividTeal}\code{D1} · +2 ZPD}},
+        {\textbf{\color{AmberGold}\code{FS1} · +4 ZPD}},
+        {\textbf{\color{UNIGranate}\code{D2} · 7 limpias}}
+      },
+      yticklabel style={font=\small},
+      xtick={0,0.01,0.02,0.03,0.04},
+      xticklabel style={font=\footnotesize, /pgf/number format/fixed, /pgf/number format/precision=2, /pgf/number format/fixed zerofill=true},
+      xmajorgrids=true,
+      grid style={RuleGray!55},
+      axis lines*=left,
+      clip=false
+    ]
+      % Línea vertical en cero
+      \draw[InkDark, dashed, line width=1pt] (axis cs:0,-0.55) -- (axis cs:0,3.55);
+
+      % FS2
+      \draw[MutedSlate, line width=3.5pt, line cap=round] (axis cs:-0.0051,0) -- (axis cs:0.0122,0);
+      \addplot[only marks, mark=*, mark size=4pt, mark options={draw=MutedSlate, fill=white, line width=1.8pt}] coordinates {(0.0032,0)};
+      \node[anchor=west, font=\footnotesize\bfseries, color=InkDark] at (axis cs:0.0138,0) {$+0.0032\ \ [-0.0051,\,+0.0122]\ \cdot\ p = 0.494\ \cdot\ d_z = 0.22\ \cdot\ 5/10$};
+
+      % D1
+      \draw[VividTeal, line width=3.5pt, line cap=round] (axis cs:0.0107,1) -- (axis cs:0.0278,1);
+      \addplot[only marks, mark=*, mark size=4pt, mark options={draw=VividTeal, fill=white, line width=1.8pt}] coordinates {(0.0189,1)};
+      \node[anchor=west, font=\footnotesize\bfseries, color=InkDark] at (axis cs:0.0294,1) {$+0.0189\ \ [+0.0107,\,+0.0278]\ \cdot\ p = 0.0039\ \cdot\ d_z = 1.30\ \cdot\ 9/10$};
+
+      % FS1
+      \draw[AmberGold, line width=3.5pt, line cap=round] (axis cs:0.0130,2) -- (axis cs:0.0274,2);
+      \addplot[only marks, mark=*, mark size=4pt, mark options={draw=AmberGold, fill=white, line width=1.8pt}] coordinates {(0.0200,2)};
+      \node[anchor=west, font=\footnotesize\bfseries, color=InkDark] at (axis cs:0.0290,2) {$+0.0200\ \ [+0.0130,\,+0.0274]\ \cdot\ p = 0.00195\ \cdot\ d_z = 1.61\ \cdot\ 10/10$};
+
+      % D2
+      \draw[VividMagenta, line width=4pt, line cap=round] (axis cs:0.0225,3) -- (axis cs:0.0372,3);
+      \addplot[only marks, mark=*, mark size=4.3pt, mark options={draw=UNIGranate, fill=white, line width=2pt}] coordinates {(0.0298,3)};
+      \node[anchor=west, font=\footnotesize\bfseries, color=UNIGranate] at (axis cs:0.0388,3) {$+0.0298\ \ [+0.0225,\,+0.0372]\ \cdot\ p = 0.00195\ \cdot\ d_z = 2.40\ \cdot\ 10/10$};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Diferencia pareada $\Delta\mathrm{LG}$ respecto al vector crudo \code{FS0\_raw13}. Solo el historial temporal (\code{FS2}) cruza el cero.}
+  \label{fig:forest}
+\end{figure}
+
+\subsection{Ablaciones e importancia de variables}
+
+\begin{table}[H]
+  \centering
+  \caption{Ablaciones controladas sobre el vector de estado--acción.}
+  \begin{tabularx}{\textwidth}{@{} p{5.1cm} p{4.9cm} X @{}}
+    \toprule
+    \rowcolor{AmberGold} \color{white}\textbf{Cambio evaluado} & \color{white}\textbf{Resultado pareado} & \color{white}\textbf{Lectura técnica} \\
+    \midrule
+    Añadir 2 vars. ZPD (\code{D1} vs. \code{FS0}) & $+0.0189\ [+0.0107,\,+0.0278]$, $9/10$ & El acoplamiento habilidad--dificultad explica el salto principal de $\mathrm{LG}$. \\
+    \rowcolor{RowTintBlue} Añadir historial (\code{FS2} vs. \code{FS0}) & $+0.0032$, $p = 0.494$, $5/10$ & Sin efecto detectable; variante descartada. \\
+    Depurar estado (\code{D2} vs. \code{FS1}) & $+0.0098\ [+0.0012,\,+0.0204]$, $p = 0.0605$, $d_z = 0.60$, $8/10$ & Tendencia favorable consistente, aún no significativa a $\alpha = 0.05$ con 10 corridas. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+En el modelo supervisado de transición de aprendizaje ($k=5$ \textit{folds}, $\mathrm{ROC\text{-}AUC} = 0.9479 \pm 0.0049$, $\text{Brier} = 0.0703$, $\text{ECE} = 0.0576$ frente a $\mathrm{AUC} = 0.4974 \pm 0.0178$ en \code{FS0\_raw13}), \code{zpd\_hit} concentra la importancia por permutación ($\Delta\mathrm{AUC} = +0.0959$), seguida de \code{abs\_gap} ($+0.0140$) y \code{theta\_3} ($+0.0047$); las cuatro restantes oscilan cerca de cero o negativas. Por magnitud media de Shapley ($|\mathrm{SHAP}|$), \code{zpd\_hit} lidera ($0.0677$) y \code{abs\_gap} se ubica cuarta ($0.0127$). La multicolinealidad del vector depurado de 7 variables permanece controlada con $\mathrm{VIF}_{\max} = 2.125$ (\code{abs\_gap}).
+
+% --- FIGURA 4: IMPORTANCIA (3 PANELES GROUPPLOTS VECTORIAL) ---
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \begin{groupplot}[
+      group style={group size=3 by 1, horizontal sep=0.70cm, y descriptions at=edge left},
+      width=0.295\textwidth,
+      height=5.3cm,
+      ytick={0,1,2,3,4,5,6},
+      yticklabels={
+        \code{theta\_2},
+        \code{u\_progress},
+        \code{b\_prev\_raw},
+        \code{theta\_1},
+        \code{theta\_3},
+        \code{abs\_gap},
+        \textbf{\code{zpd\_hit}}
+      },
+      yticklabel style={font=\footnotesize},
+      xticklabel style={font=\scriptsize},
+      ymin=-0.6, ymax=6.6,
+      xmajorgrids=true,
+      grid style={RuleGray!55},
+      axis lines*=left,
+      clip=false
+    ]
+    % Panel A: Permutación
+    \nextgroupplot[
+      xbar=0pt, bar shift=0pt, bar width=9pt,
+      scaled x ticks=false,
+      title={\textbf{\small\color{UNIGranate}A · Permutación ($\Delta\mathrm{AUC}$)}},
+      xmin=-0.012, xmax=0.145,
+      xtick={0,0.05,0.10},
+      xticklabels={0, 0.05, 0.10}
+    ]
+      \draw[InkDark, line width=0.6pt] (axis cs:0,-0.55) -- (axis cs:0,6.55);
+      \addplot[fill=ElectricBlue, draw=ElectricBlue] coordinates {
+        (-0.0025,0) (-0.0011,1) (-0.0003,2) (-0.0002,3) (0.0047,4)
+      };
+      \addplot[fill=VividMagenta, draw=UNIGranate] coordinates {(0.0140,5) (0.0959,6)};
+      \node[anchor=west, font=\scriptsize\bfseries, color=InkDark, fill=white, inner sep=0.8pt] at (axis cs:0.003,0) {$-0.0025$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=InkDark, fill=white, inner sep=0.8pt] at (axis cs:0.003,1) {$-0.0011$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=InkDark, fill=white, inner sep=0.8pt] at (axis cs:0.003,2) {$-0.0003$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=InkDark, fill=white, inner sep=0.8pt] at (axis cs:0.003,3) {$-0.0002$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=ElectricBlue, fill=white, inner sep=0.8pt] at (axis cs:0.007,4) {$+0.0047$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=UNIGranate, fill=white, inner sep=0.8pt] at (axis cs:0.017,5) {$+0.0140$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=UNIGranate, fill=white, inner sep=0.8pt] at (axis cs:0.0985,6) {$+0.0959$};
+
+    % Panel B: |SHAP|
+    \nextgroupplot[
+      xbar=0pt, bar shift=0pt, bar width=9pt,
+      scaled x ticks=false,
+      title={\textbf{\small\color{ElectricBlue}B · $|\mathrm{SHAP}|$ medio}},
+      xmin=0, xmax=0.096,
+      xtick={0,0.03,0.06},
+      xticklabels={0, 0.03, 0.06}
+    ]
+      \addplot[fill=ElectricBlue, draw=ElectricBlue] coordinates {
+        (0.0043,0) (0.0089,1) (0.0065,2) (0.0153,3) (0.0148,4)
+      };
+      \addplot[fill=VividMagenta, draw=UNIGranate] coordinates {(0.0127,5) (0.0677,6)};
+      \node[anchor=west, font=\scriptsize\bfseries, color=InkDark, fill=white, inner sep=0.8pt] at (axis cs:0.006,0) {$0.0043$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=InkDark, fill=white, inner sep=0.8pt] at (axis cs:0.0105,1) {$0.0089$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=InkDark, fill=white, inner sep=0.8pt] at (axis cs:0.0082,2) {$0.0065$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=ElectricBlue, fill=white, inner sep=0.8pt] at (axis cs:0.017,3) {$0.0153$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=ElectricBlue, fill=white, inner sep=0.8pt] at (axis cs:0.0165,4) {$0.0148$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=UNIGranate, fill=white, inner sep=0.8pt] at (axis cs:0.0145,5) {$0.0127$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=UNIGranate, fill=white, inner sep=0.8pt] at (axis cs:0.0695,6) {$0.0677$};
+
+    % Panel C: VIF
+    \nextgroupplot[
+      xbar=0pt, bar shift=0pt, bar width=9pt,
+      scaled x ticks=false,
+      title={\textbf{\small\color{VividTeal}C · $\mathrm{VIF}$ (máx. $2.125$)}},
+      xmin=0, xmax=3.25,
+      xtick={0,1,2,2.5},
+      xticklabels={0, 1, 2, 2.5}
+    ]
+      \draw[UNIGranate, dashed, line width=1pt] (axis cs:2.5,-0.55) -- (axis cs:2.5,6.55);
+      \addplot[fill=VividTeal, draw=VividTeal] coordinates {
+        (1.012,0) (1.004,1) (1.001,2) (1.013,3) (1.033,4)
+      };
+      \addplot[fill=AmberGold, draw=AmberGold] coordinates {(2.125,5) (2.070,6)};
+      \node[anchor=west, font=\scriptsize\bfseries, color=InkDark, fill=white, inner sep=0.8pt] at (axis cs:1.06,0) {$1.012$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=InkDark, fill=white, inner sep=0.8pt] at (axis cs:1.06,1) {$1.004$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=InkDark, fill=white, inner sep=0.8pt] at (axis cs:1.06,2) {$1.001$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=InkDark, fill=white, inner sep=0.8pt] at (axis cs:1.06,3) {$1.013$};
+      \node[anchor=west, font=\scriptsize\bfseries, color=InkDark, fill=white, inner sep=0.8pt] at (axis cs:1.08,4) {$1.033$};
+      \node[anchor=east, font=\scriptsize\bfseries, color=white] at (axis cs:2.08,5) {$2.125$};
+      \node[anchor=east, font=\scriptsize\bfseries, color=white] at (axis cs:2.03,6) {$2.070$};
+    \end{groupplot}
+  \end{tikzpicture}
+  \caption{Diagnóstico del vector depurado \code{D2\_clean5\_zpd2} ($7$ variables): importancia por permutación ($\Delta\mathrm{AUC}$), contribución media $|\mathrm{SHAP}|$ y factor de inflación de varianza $\mathrm{VIF}$ (umbral $2.5$ en línea discontinua). Fuente: \code{sprint2\_diagnostics.json}.}
+  \label{fig:importancia}
+\end{figure}
+
+\subsection{Robustez y casos de fallo}
+\begin{itemize}
+  \item \textbf{Variabilidad entre corridas:} las 10 corridas de \code{D2\_clean5\_zpd2} abarcan de $-0.0029$ a $+0.0496$; una corrida (\textit{fold} 0, semilla 0) resulta ligeramente negativa ($-0.0029$).
+  \item \textbf{Habilidad estimada con ruido (Elo en línea, $k=0.1$):} al reemplazar $\theta^*$ verdadero por $\hat{\theta}$ estimado con Elo sobre 5 \textit{folds} (\code{runs\_elo.json}), las medias bajan a $\code{FS0\_elo} = -0.0101 \pm 0.0116$, $\code{FS1\_elo} = -0.0006 \pm 0.0235$ y $\code{D2\_elo} = +0.0009 \pm 0.0203$; la ventaja \code{FS1} vs. \code{FS0} cae a $+0.0095$ ($4/5$ \textit{folds}, $p = 0.25$): resultado \textbf{no concluyente}. La ventaja principal depende hoy de observar $\theta^*$ verdadero.
+  \item \textbf{Costo computacional:} el sobrecosto de latencia en inferencia al añadir las características ZPD en \code{FS1\_zpd4} es $+0.11\text{ ms}$ por decisión (\code{summary.json}).
+\end{itemize}
+
+\subsection{Interpretación y amenazas a la validez}
+En una sesión corta de $T=50$ pasos domina el olvido multiplicativo (ec.~\ref{eq:forget}): tanto las políticas sin aprendizaje como \code{FS0\_raw13} pierden habilidad neta. Informar explícitamente al agente sobre la distancia habilidad--dificultad revierte el signo y recupera el $49.4$\,\% de la ganancia del oráculo ZPD ($+0.0203 / +0.0411$). La brecha entre el oráculo ($+0.0411$) y la cota superior de acertar dentro de ZPD en todos los 50 pasos ($0.3255$) sugiere que el banco paramétrico actual rara vez ofrece ítems dentro de $|\theta_k - b_{\text{adj}}| < 0.5$, hipótesis abierta para el siguiente sprint.
+
+\begin{table}[H]
+  \centering
+  \caption{Amenazas a la validez identificadas al corte.}
+  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{RoyalViolet}}p{3.0cm} X @{}}
+    \toprule
+    \rowcolor{RoyalViolet} \color{white}\textbf{Tipo de validez} & \color{white}\textbf{Descripción de la amenaza} \\
+    \midrule
+    Constructo & \code{zpd\_hit} reproduce la regla exacta con la que el simulador genera aprendizaje (ec.~\ref{eq:learn}); su poder predictivo es esperable por construcción. \\
+    \rowcolor{RowTintBlue} Interna & El agente observa $\theta^*$ verdadero; con estimadores ruidosos de $\hat{\theta}$ la ventaja disminuye (ver prueba Elo). \\
+    Estadística & $n = 10$ corridas con dependencia entre las dos semillas de un mismo \textit{fold}. \\
+    \rowcolor{RowTintBlue} Externa & Estudiantes sintéticos e ítems muestreados (\code{bank\_seed=2026}); nada se generaliza a escolares reales. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+% --- SECCIÓN 9 ---
+\section{Conclusiones y próximos pasos}
+
+\subsection{Conclusiones sustentadas}
+\begin{enumerate}[label=\textbf{\color{VividMagenta}\arabic*.}, leftmargin=1.6em, itemsep=3pt]
+  \item \textbf{Variables de acoplamiento:} incorporar indicadores de acoplamiento ZPD mejora sustancialmente la ganancia $\mathrm{LG}$ frente al vector crudo (\code{FS1}: $+0.0200$, $p_{\text{perm}}=0.00195$, $10/10$ corridas; \code{D1}: $+0.0189$, $9/10$).
+  \item \textbf{Vector depurado óptimo:} \code{D2\_clean5\_zpd2} ($7$ variables) obtiene la mejor ganancia absoluta ($+0.0203 \pm 0.0167$, $\Delta = +0.0298$, $d_z = 2.40$) y alcanza el $49.4$\,\% de la referencia de oráculo ($+0.0411$).
+  \item \textbf{Historial y depuración adicional:} el historial temporal (\code{FS2}) no aporta señal detectable ($+0.0032$, $p=0.494$); la depuración adicional (\code{D2} vs. \code{FS1}) muestra tendencia favorable ($+0.0098$, $8/10$) aún no significativa ($p = 0.0605$).
+\end{enumerate}
+
+\textbf{\color{RoyalViolet}No determinado al corte:} efecto real de \textit{Dyna-PPO} y del ajuste de hiperparámetros; desempeño al reemplazar $\theta^*$ por MSKT/NeuralCD; transferencia a un simulador estructuralmente distinto (p.\,ej., BKT); impacto en estudiantes reales.
+
+\subsection{Riesgos y mitigación}
+\begin{table}[H]
+  \centering
+  \caption{Matriz de riesgos y estrategias de mitigación.}
+  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{UNIGranate}}p{4.4cm} p{1.6cm} X @{}}
+    \toprule
+    \rowcolor{UNIGranate} \color{white}\textbf{Riesgo} & \color{white}\textbf{Impacto} & \color{white}\textbf{Mitigación} \\
+    \midrule
+    Circularidad variable--simulador & \textbf{\color{VividMagenta}Alto} & Evaluar la política congelada sobre un simulador de familia distinta (BKT). \\
+    \rowcolor{RowTintRose} Dependencia de $\theta^*$ verdadero & \textbf{\color{VividMagenta}Alto} & Sustituir por estimador aprendido (MSKT/NeuralCD) y repetir el contraste pareado. \\
+    Brecha entre título y prototipo & \textbf{\color{VividMagenta}Alto} & Priorizar \textit{Dyna-PPO} y estimador en Semanas 10--14; acordar alcance final con la asesora. \\
+    \rowcolor{RowTintRose} Potencia estadística & \textbf{\color{AmberGold}Medio} & Evaluación confirmatoria con mayor número de corridas y particiones independientes. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Plan del siguiente sprint (Semanas 10--14)}
+\begin{table}[H]
+  \centering
+  \caption{Actividades y criterios de aceptación del siguiente sprint.}
+  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{VividTeal}}p{4.0cm} p{4.2cm} X p{1.6cm} @{}}
+    \toprule
+    \rowcolor{VividTeal} \color{white}\textbf{Actividad} & \color{white}\textbf{Entregable} & \color{white}\textbf{Criterio de aceptación} & \color{white}\textbf{Semana} \\
+    \midrule
+    Modelo del mundo $+$ \textit{Dyna-PPO} & Módulos en \code{src/} y logs por corrida & Resultados ejecutados y trazados por script versionado & 10--11 \\
+    \rowcolor{RowTintTeal} Búsqueda de hiperparámetros & Registro completo de trials & Espacio de búsqueda y presupuesto fijados antes de ejecutar & 12 \\
+    Evaluación confirmatoria & Tabla con particiones y semillas nuevas & Verificación de criterio enmendado de HG ($\ge 40$\,\% oráculo) & 13--14 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+% ==============================================================================
+% REFERENCIAS (APA 7)
+% ==============================================================================
+\clearpage
+\section*{Referencias}
+\addcontentsline{toc}{section}{Referencias}
+\markboth{Referencias}{Referencias}
+{\small
+\begin{list}{}{\setlength{\leftmargin}{1.5em}\setlength{\itemindent}{-1.5em}\setlength{\itemsep}{3pt}\setlength{\parsep}{0pt}}
+\item Altman, E. (1999). \textit{Constrained Markov decision processes}. Chapman \& Hall/CRC.
+\item Birnbaum, A. (1968). Some latent trait models and their use in inferring an examinee's ability. En F. M. Lord \& M. R. Novick (Eds.), \textit{Statistical theories of mental test scores} (pp. 397--479). Addison-Wesley.
+\item Cohen, J. (1988). \textit{Statistical power analysis for the behavioral sciences} (2.\textsuperscript{a} ed.). Lawrence Erlbaum.
+\item Corbett, A. T., \& Anderson, J. R. (1994). Knowledge tracing: Modeling the acquisition of procedural knowledge. \textit{User Modeling and User-Adapted Interaction}, 4(4), 253--278.
+\item Csikszentmihalyi, M. (1990). \textit{Flow: The psychology of optimal experience}. Harper \& Row.
+\item Doroudi, S., Aleven, V., \& Brunskill, E. (2019). Where's the reward? A review of reinforcement learning for instructional sequencing. \textit{International Journal of Artificial Intelligence in Education}, 29(4), 568--620.
+\item García, J., \& Fernández, F. (2015). A comprehensive survey on safe reinforcement learning. \textit{Journal of Machine Learning Research}, 16(42), 1437--1480.
+\item Hake, R. R. (1998). Interactive-engagement versus traditional methods. \textit{American Journal of Physics}, 66(1), 64--74.
+\item Holm, S. (1979). A simple sequentially rejective multiple test procedure. \textit{Scandinavian Journal of Statistics}, 6(2), 65--70.
+\item Janner, M., Fu, J., Zhang, M., \& Levine, S. (2019). When to trust your model: Model-based policy optimization. \textit{Advances in Neural Information Processing Systems}, 32.
+\item Kintsch, W. (1998). \textit{Comprehension: A paradigm for cognition}. Cambridge University Press.
+\item Lundberg, S. M., \& Lee, S.-I. (2017). A unified approach to interpreting model predictions. \textit{Advances in Neural Information Processing Systems}, 30.
+\item MINEDU. (2016). \textit{Currículo Nacional de la Educación Básica}. Ministerio de Educación del Perú.
+\item OECD. (2023). \textit{PISA 2022 results (Volume I): The state of learning and equity in education}. OECD Publishing.
+\item Pandey, S., \& Karypis, G. (2019). A self-attentive model for knowledge tracing. \textit{Proceedings of EDM 2019}.
+\item Piech, C., et al. (2015). Deep knowledge tracing. \textit{Advances in Neural Information Processing Systems}, 28.
+\item Schulman, J., Moritz, P., Levine, S., Jordan, M., \& Abbeel, P. (2016). High-dimensional continuous control using generalized advantage estimation. \textit{ICLR 2016}.
+\item Schulman, J., Wolski, F., Dhariwal, P., Radford, A., \& Klimov, O. (2017). Proximal policy optimization algorithms. \textit{arXiv preprint arXiv:1707.06347}.
+\item Shin, D., et al. (2021). SAINT+: Integrating temporal features for EdNet correctness prediction. \textit{Proceedings of LAK21}.
+\item Sutton, R. S. (1991). Dyna, an integrated architecture for learning, planning, and reacting. \textit{ACM SIGART Bulletin}, 2(4), 160--163.
+\item Sutton, R. S., \& Barto, A. G. (2018). \textit{Reinforcement learning: An introduction} (2.\textsuperscript{a} ed.). MIT Press.
+\item Vygotsky, L. S. (1978). \textit{Mind in society}. Harvard University Press.
+\item Wang, F., et al. (2020). Neural cognitive diagnosis for intelligent education systems. \textit{Proceedings of the AAAI Conference on Artificial Intelligence}, 34(04), 6153--6161.
+\end{list}
+}
+
+% ==============================================================================
+% ANEXOS
+% ==============================================================================
+\partbanner{RoyalViolet}{Material de soporte y trazabilidad}{Anexos}
+
+\subsection*{Anexo A. Matriz de consistencia}
+\addcontentsline{toc}{subsection}{Anexo A. Matriz de consistencia}
+\begin{table}[H]
+  \centering
+  \caption{Matriz de consistencia al corte de la Semana 9.}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{ElectricBlue}}p{1.2cm} p{1.1cm} p{4.2cm} p{3.6cm} X @{}}
+    \toprule
+    \rowcolor{ElectricBlue}
+    \color{white}\textbf{Probl.} & \color{white}\textbf{Obj.} & \color{white}\textbf{Hipótesis} & \color{white}\textbf{Variables} & \color{white}\textbf{Indicador y resultado} \\
+    \midrule
+    PG & OG & HG: PPO con vector depurado supera a vector crudo y políticas base & VI: conjunto de variables y política.\newline VD: ganancia $\mathrm{LG}$ & $\mathrm{LG}\ -0.0095 \rightarrow +0.0203$; $\Delta = +0.0298\ [+0.0225,\,+0.0372]$; $49.4$\,\% del oráculo \\
+    \rowcolor{RowTintBlue} PE1 & OE1 & HE1: \code{zpd\_hit} y \code{abs\_gap} son las más informativas & VI: \code{zpd\_hit}, \code{abs\_gap}.\newline VD: transición aprendizaje & $\Delta\mathrm{AUC}$ \#1 y \#2; $|\mathrm{SHAP}|$ \#1 y \#4. Parcialmente confirmada \\
+    PE2 & OE2 & HE2: depurar el estado mejora la ganancia & VI: estado limpio vs. completo.\newline VD: ganancia $\mathrm{LG}$ & $\Delta = +0.0098$, $p = 0.0605$, $d_z=0.60$. No confirmada \\
+    \rowcolor{RowTintBlue} PE3 & OE3 & HE3: \textit{Dyna-PPO} ajustado supera a PPO & VI: planificación e HPO.\newline VD: ganancia y eficiencia & Sin evaluar (planificada para Semanas 10--14) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection*{Anexo B. Enlace al último branch y trazabilidad}
+\addcontentsline{toc}{subsection}{Anexo B. Enlace al último branch y trazabilidad}
+\textbf{\color{VividMagenta}Rama de entrega:} \url{https://github.com/yasminum/SistemaTutorInteligente/tree/feat/hyperparameter-optimization} — código, datos, logs y resultados reales verificados en commit \code{77c6cfe} (compilación \LaTeX/PDF de este informe añadida en \code{docs/}). La rama conserva su denominación original aunque la búsqueda de hiperparámetros quedó programada para la Semana 12.
+
+\begin{table}[H]
+  \centering
+  \caption{Ramas y commits verificados del sprint.}
+  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{UNIGranate}}p{4.6cm} X p{2.8cm} @{}}
+    \toprule
+    \rowcolor{VividMagenta} \color{white}\textbf{Etapa} & \color{white}\textbf{Rama} & \color{white}\textbf{Commit} \\
+    \midrule
+    EDA (Semana 4) & \code{eda} & \code{723cbf8} \\
+    \rowcolor{RowTintRose} Variables ZPD (Semana 5) & \code{feature-engineering} & \code{b1dd663} \\
+    Auditoría y poda (Semana 6) & \code{data-centric-audit-and-pruning} & \code{b8795ab} \\
+    \rowcolor{RowTintRose} Importancia y matriz (Semana 7) & \code{feat/variable-importance-and-consistency-matrix} & \code{e659281} \\
+    Saneamiento código/datos (Semana 9) & \code{feat/hyperparameter-optimization} & \code{77c6cfe} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection*{Anexo C. Diccionario y decisión por variable}
+\addcontentsline{toc}{subsection}{Anexo C. Diccionario y decisión por variable}
+\begin{table}[H]
+  \centering
+  \caption{Variables candidatas del estado--acción y decisión de selección.}
+  \begin{tabularx}{\textwidth}{@{} >{\bfseries}p{5.5cm} X p{4.2cm} @{}}
+    \toprule
+    \rowcolor{VividTeal} \color{white}\textbf{Variable} & \color{white}\textbf{Definición} & \color{white}\textbf{Decisión} \\
+    \midrule
+    \code{zpd\_hit} & $\mathbf{1}\!\big[|\theta_k - b_a| < 0.5\big]$ & \textbf{\color{EmeraldGreen}Retenida} \\
+    \rowcolor{RowTintTeal} \code{abs\_gap} & $|\theta_k - b_a|$ & \textbf{\color{EmeraldGreen}Retenida} \\
+    \code{theta\_1}, \code{theta\_2}, \code{theta\_3} & Habilidad verdadera por competencia & \textbf{\color{EmeraldGreen}Retenidas} \\
+    \rowcolor{RowTintTeal} \code{b\_prev\_raw}, \code{u\_progress} & Dificultad previa y avance $t/50$ & \textbf{\color{EmeraldGreen}Retenidas} {\scriptsize(sin ablación propia)} \\
+    \code{zpd\_prox}, \code{signed\_gap} & Proximidad gaussiana y brecha con signo & \color{AmberGold}Descartadas por colinealidad \\
+    \rowcolor{RowTintTeal} \code{sigma\_1..3}, \code{u\_acc}, \code{u\_streak}, \code{tau\_1}, \code{tau\_2}, \code{E\_hat} & Columnas constantes sin variación ($\code{n\_dead\_xt}=8$) & \color{MutedSlate}Descartadas \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection*{Anexo D. Registro individual de corridas}
+\addcontentsline{toc}{subsection}{Anexo D. Registro individual de corridas}
+\textbf{\color{AmberGold}Configuración (\code{runs\_oracle.json}):} $\code{n\_students} = 100$, $\code{k\_folds} = 5$, $\code{fold\_seed} = 2026$, $\code{bank\_seed} = 2026$, $\code{seeds} = [0, 1]$, $\code{train\_episodes} = 1500$. Huellas íntegras: $\code{code\_sha256} = \code{ed9d8eac\ldots 49b1a}$, $\code{data\_sha256} = \code{07ed76f0\ldots d4706}$.
+
+\begin{table}[H]
+  \centering
+  \caption{Ganancia $\mathrm{LG}$ por corrida individual de \code{D2\_clean5\_zpd2}.}
+  \scriptsize
+  \setlength{\tabcolsep}{3.5pt}
+  \begin{tabular}{@{} l c c c c c c c c c c @{}}
+    \toprule
+    \rowcolor{AmberGold}
+    \color{white}\textbf{Corrida} & \color{white}\textbf{1} & \color{white}\textbf{2} & \color{white}\textbf{3} & \color{white}\textbf{4} & \color{white}\textbf{5} & \color{white}\textbf{6} & \color{white}\textbf{7} & \color{white}\textbf{8} & \color{white}\textbf{9} & \color{white}\textbf{10} \\
+    \midrule
+    \code{D2 LG} & $-0.0029$ & $+0.0085$ & $+0.0100$ & $+0.0044$ & $+0.0382$ & $+0.0345$ & $+0.0496$ & $+0.0152$ & $+0.0269$ & $+0.0185$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection*{Anexo E. Pruebas de no-fuga de datos}
+\addcontentsline{toc}{subsection}{Anexo E. Pruebas de no-fuga de datos}
+\begin{table}[H]
+  \centering
+  \caption{Pruebas automáticas de no-fuga (\code{python -m src.leakage\_checks} y \code{tests/test\_leakage\_checks.py}). Resultado: $5/5$ PASS ($\code{leakage\_all\_pass} = \code{true}$).}
+  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{RoyalViolet}}p{1.6cm} X @{}}
+    \toprule
+    \rowcolor{RoyalViolet} \color{white}\textbf{Prueba} & \color{white}\textbf{Propiedad verificada} \\
+    \midrule
+    L1 & Ningún estudiante aparece simultáneamente en entrenamiento y validación dentro del mismo \textit{fold}. \\
+    \rowcolor{RowTintBlue} L2 & El vector de estado en el paso $t$ es invariante ante alteraciones de respuestas futuras ($>t$). \\
+    L3 & Las variables de acoplamiento ZPD utilizan exclusivamente información previa a la acción. \\
+    \rowcolor{RowTintBlue} L4 & Las transformaciones de preprocesamiento (\code{StandardScaler}) se ajustan solo sobre el conjunto de entrenamiento. \\
+    L5 & Política congelada durante evaluación (parámetros idénticos antes y después de evaluar en validación). \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\end{document}

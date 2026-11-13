@@ -35,7 +35,7 @@ Protocolo: `100` estudiantes sintéticos, sesiones de `50` pasos con olvido expo
 
 * **Contraste de depuración pura (`D2_clean5_zpd2` vs `FS1_zpd4`):** `Δ = +0.0098 [+0.0012, +0.0204]`, `p_perm = 0.0605`, `d_z = 0.60`, `8/10` corridas (tendencia favorable, aún no significativa a `α = 0.05` con `n = 10`).
 * **Importancia y colinealidad (`sprint2_diagnostics.json`):** `zpd_hit` (`ΔAUC = +0.0959`, `|SHAP| = 0.0677`, `VIF = 2.070`) y `abs_gap` (`ΔAUC = +0.0140`, `|SHAP| = 0.0127`, `VIF = 2.125`); se podaron `8` columnas sin variación (`n_dead_xt = 8`: `u_acc`, `u_streak`, `tau_1`, `tau_2`, `E_hat`, `sigma_1..3`) y `2` colineales (`zpd_prox`, `signed_gap`).
-* **Sensibilidad sin oráculo (`runs_elo.json`, `k = 0.1`, `n = 5` folds):** `D2_elo = +0.0009 ± 0.0203` vs `FS1_elo`; ventaja reportada `+0.0095`, `4/5` folds, `p = 0.25` (no concluyente; el resultado principal depende de observar `θ*`).
+* **Sensibilidad sin oráculo (`runs_elo.json`, `k = 0.1`, `n = 5` folds):** `FS0_elo = −0.0101 ± 0.0116`, `FS1_elo = −0.0006 ± 0.0235`, `D2_elo = +0.0009 ± 0.0203`; ventaja `FS1` vs `FS0` = `+0.0095`, `4/5` folds, `p = 0.25` (no concluyente; el resultado principal depende de observar `θ*`).
 
 ---
 
@@ -47,7 +47,7 @@ Protocolo: `100` estudiantes sintéticos, sesiones de `50` pasos con olvido expo
 | **Sem. 5 — FE** | `feature-engineering` | [`src/feature_engineering.py`](src/feature_engineering.py) · [`src/leakage_checks.py`](src/leakage_checks.py) | Creación de señales ZPD y `5/5 PASS` anti-fuga (`L1–L5`) |
 | **Sem. 6 — Poda** | `data-centric-audit-and-pruning` | [`notebooks/02_Feature_Engineering.ipynb`](notebooks/02_Feature_Engineering.ipynb) | Eliminación de `8` columnas muertas y reducción de colinealidad |
 | **Sem. 7 — Diagnósticos** | `feat/variable-importance-and-consistency-matrix` | [`notebooks/03_Importancia_Variables_y_Matriz_Consistencia.ipynb`](notebooks/03_Importancia_Variables_y_Matriz_Consistencia.ipynb) · [`docs/matriz_consistencia.md`](docs/matriz_consistencia.md) | `ΔAUC`, `\|SHAP\|`, `VIF <= 2.125` y matriz de consistencia |
-| **Sem. 8–9 — Saneamiento e Informe** | `feat/hyperparameter-optimization` | [`docs/Informe_Parcial_PI2_UNI_Grupo2_Academica_FINAL.pdf`](docs/Informe_Parcial_PI2_UNI_Grupo2_Academica_FINAL.pdf) · [`data/results/`](data/results/) | Depuración de evidencia real del Régimen B e informe parcial UNI |
+| **Sem. 8–9 — Saneamiento e Informe** | `feat/hyperparameter-optimization` | [`docs/Informe_Parcial_PI2_UNI_Grupo2_Academica_FINAL.pdf`](docs/Informe_Parcial_PI2_UNI_Grupo2_Academica_FINAL.pdf) · [`docs/informe_parcial_uni_grupo2.tex`](docs/informe_parcial_uni_grupo2.tex) · [`data/results/`](data/results/) | Depuración de evidencia real del Régimen B e informe parcial UNI (compilado en LaTeX) |
 
 *(Nota: la rama final conserva el nombre `feat/hyperparameter-optimization`, pero la búsqueda de hiperparámetros y `Dyna-PPO` quedan explícitamente planificados para las Semanas 10–14.)*
 
@@ -63,6 +63,7 @@ Protocolo: `100` estudiantes sintéticos, sesiones de `50` pasos con olvido expo
 │   └── sample/                            # Muestras CSV de EDA (Sem. 4) y features transformadas (Sem. 5–7)
 ├── docs/
 │   ├── Informe_Parcial_PI2_UNI_Grupo2_Academica_FINAL.docx / .pdf
+│   ├── informe_parcial_uni_grupo2.tex
 │   └── matriz_consistencia.md
 ├── figures/
 │   ├── eda/                               # 8 gráficos del EDA y auditoría inicial (Sem. 4)
