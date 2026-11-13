@@ -2,7 +2,7 @@
 % INFORME PARCIAL PI2 — PROYECTO DE INVESTIGACIÓN II (PLANTILLA ACADÉMICA UNI)
 % Compatible con pdfLaTeX (Overleaf por defecto), XeLaTeX y LuaLaTeX
 % Estilo: Fondo blanco, escudo oficial UNI granate (#7B1113) + paleta vibrante
-% Cifras: Exclusivamente Régimen B verificado (summary.json, runs_oracle.json,
+% Cifras: Exclusivamente evidencia verificada (summary.json, runs_oracle.json,
 %         runs_elo.json, sprint2_diagnostics.json, src/*.py) en commit 77c6cfe
 % ==============================================================================
 \documentclass[10.5pt,a4paper]{article}
@@ -146,8 +146,9 @@
     left=10pt,right=6pt,top=6pt,bottom=6pt,
     before skip=0pt,after skip=8pt
   ]
-    {\fontsize{8.5}{10}\selectfont\bfseries\color{#1}\MakeUppercase{#2}}\\[2pt]
-    {\fontsize{18}{22}\selectfont\bfseries\color{InkDark}#3}
+    {\fontsize{8.5}{11}\selectfont\bfseries\color{#1}\MakeUppercase{#2}\par}
+    \vspace{-3pt}
+    {\fontsize{18}{19}\selectfont\bfseries\color{InkDark}#3\par}
   \end{tcolorbox}%
   \addcontentsline{toc}{section}{#3}%
   \markboth{#3}{#3}%
@@ -182,7 +183,9 @@
 % --- Listas y tablas ---
 \setlist[itemize]{leftmargin=1.3em, itemsep=2pt, topsep=2pt, parsep=1pt, label=\textcolor{VividMagenta}{\scriptsize$\blacksquare$}}
 \captionsetup{font={small,color=MutedSlate},labelfont={bf,color=UNIGranate},skip=4pt}
-\renewcommand{\arraystretch}{1.22}
+\renewcommand{\arraystretch}{1.35}
+\setlength{\aboverulesep}{0pt}
+\setlength{\belowrulesep}{0pt}
 
 % --- Cajas tcolorbox ---
 \newtcolorbox{calloutbox}[3][TintAmber]{% #1 tint, #2 accent, #3 title
@@ -211,8 +214,13 @@
   before skip=4pt,after skip=6pt
 }
 
-% --- Atajos de código inline ---
+% --- Atajos de código inline y capítulos ---
 \newcommand{\code}[1]{\texttt{\color{InkDark}#1}}
+\newcommand{\chapsection}[1]{%
+  \stepcounter{section}%
+  \section*{#1}\phantomsection
+  \addcontentsline{toc}{section}{#1}%
+  \markboth{#1}{#1}}
 
 \begin{document}
 \decimalpoint
@@ -272,9 +280,6 @@
     \end{tabularx}
   \end{tcolorbox}
 
-  \vfill
-  {\fontsize{8.5}{11}\selectfont\color{MutedSlate}
-  Documento académico elaborado en \LaTeX\ con exclusividad de evidencia verificada (Régimen B). Estudio \emph{in-silico}.}
 \end{titlepage}
 
 % ==============================================================================
@@ -284,8 +289,8 @@
 \thispagestyle{fancy}
 \markboth{Resumen ejecutivo}{Resumen ejecutivo}
 
-\noindent{\fontsize{8.5}{10}\selectfont\bfseries\color{VividMagenta}EN UNA PÁGINA}\\[-1pt]
-{\fontsize{19}{23}\selectfont\bfseries\color{UNIGranate}Resumen ejecutivo}\par
+{\fontsize{19}{23}\selectfont\bfseries\color{UNIGranate}Resumen ejecutivo\par}
+\vspace{1pt}
 \jewelbar[2.4pt]
 \vspace{4pt}
 
@@ -294,28 +299,28 @@ El plan de tesis propone un tutor adaptativo de comprensión lectora que decide 
 \vspace{6pt}
 \noindent\begin{tikzpicture}
   % Card 1
-  \node[draw=ElectricBlue, line width=0.8pt, rounded corners=4pt, fill=RowTintBlue, text width=0.282\textwidth, align=center, inner sep=6pt] (k1) at (0,0) {
+  \node[draw=ElectricBlue, line width=0.8pt, rounded corners=4pt, fill=RowTintBlue, text width=0.282\textwidth, align=center, minimum height=2.2cm, inner sep=6pt] (k1) at (0,0) {
     {\fontsize{12.5}{15}\selectfont\bfseries\color{ElectricBlue}$-0.0095 \rightarrow +0.0203$}\\[3pt]
     {\fontsize{8.2}{10.5}\selectfont\color{MutedSlate}Ganancia $\mathrm{LG}$ por episodio:\\vector crudo (\code{FS0}) $\rightarrow$ depurado (\code{D2})}
   };
   % Card 2
-  \node[draw=VividMagenta, line width=0.8pt, rounded corners=4pt, fill=RowTintRose, text width=0.295\textwidth, align=center, inner sep=6pt, right=0.015\textwidth of k1] (k2) {
+  \node[draw=VividMagenta, line width=0.8pt, rounded corners=4pt, fill=RowTintRose, text width=0.295\textwidth, align=center, minimum height=2.2cm, inner sep=6pt, right=0.015\textwidth of k1] (k2) {
     {\fontsize{12.5}{15}\selectfont\bfseries\color{VividMagenta}$+0.0298$}\\[3pt]
     {\fontsize{8.2}{10.5}\selectfont\color{MutedSlate}Diferencia pareada $\Delta\mathrm{LG}$\\IC\,95\,\% $[+0.0225,\, +0.0372]$ · $10/10$ corridas}
   };
   % Card 3
-  \node[draw=VividTeal, line width=0.8pt, rounded corners=4pt, fill=RowTintTeal, text width=0.282\textwidth, align=center, inner sep=6pt, right=0.015\textwidth of k2] (k3) {
+  \node[draw=VividTeal, line width=0.8pt, rounded corners=4pt, fill=RowTintTeal, text width=0.282\textwidth, align=center, minimum height=2.2cm, inner sep=6pt, right=0.015\textwidth of k2] (k3) {
     {\fontsize{12.5}{15}\selectfont\bfseries\color{VividTeal}$49.4$\,\%}\\[3pt]
     {\fontsize{8.2}{10.5}\selectfont\color{MutedSlate}de la heurística con oráculo\\($\mathrm{LG}_{\text{oráculo}} = +0.0411$)}
   };
 \end{tikzpicture}
 \vspace{6pt}
 
-\begin{calloutbox}[TintRose]{UNIGranate}{Alcance verificado y componentes pendientes}
+\begin{calloutbox}[TintRose]{UNIGranate}{Alcance y componentes pendientes}
 \textit{Dyna-PPO}, la búsqueda sistemática de hiperparámetros y los estimadores aprendidos MSKT y NeuralCD \textbf{no están ejecutados} al corte de la Semana 9 y se planifican para las Semanas 10--16. Todas las conclusiones de desempeño se restringen estrictamente a estudiantes sintéticos en simulación \emph{in-silico}.
 \end{calloutbox}
 
-\vspace{6pt}
+\clearpage
 \renewcommand{\contentsname}{\color{RoyalViolet}Índice general}
 \setcounter{tocdepth}{2}
 \tableofcontents
@@ -323,7 +328,7 @@ El plan de tesis propone un tutor adaptativo de comprensión lectora que decide 
 % ==============================================================================
 % PARTE I: PLAN DE TESIS
 % ==============================================================================
-\partbanner{ElectricBlue}{Parte I · Plan de tesis (Plantilla Académica UNI)}{PARTE I. Plan de tesis}
+\partbanner{ElectricBlue}{Capítulos I a V}{PARTE I. Plan de tesis}
 
 \subsection*{Datos generales}
 \addcontentsline{toc}{subsection}{Datos generales}
@@ -331,9 +336,9 @@ El plan de tesis propone un tutor adaptativo de comprensión lectora que decide 
 \begin{table}[H]
   \centering
   \caption{Datos generales del plan de tesis.}
-  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{ElectricBlue}}p{3.6cm} X @{}}
+  \begin{tabularx}{\textwidth}{>{\leavevmode\bfseries\color{ElectricBlue}}p{3.6cm} X}
     \toprule
-    \rowcolor{ElectricBlue} \color{white}\textbf{Campo} & \color{white}\textbf{Información} \\
+    \rowcolor{ElectricBlue} \textbf{\color{white}Campo} & \textbf{\color{white}Información} \\
     \midrule
     Título & Sistema de Tutoría Inteligente Adaptativa para Comprensión Lectora mediante Deep Reinforcement Learning Integrado con MSKT y NeuralCD: Un Enfoque Basado en Literatura Peruana \\
     \rowcolor{RowTintBlue} Autores (Grupo 2) & Flores Rivera, Amit Roy · Urrego Montoya, Yasmin \\
@@ -347,7 +352,7 @@ El plan de tesis propone un tutor adaptativo de comprensión lectora que decide 
 \end{table}
 
 % --- CAPÍTULO I ---
-\section{Capítulo I. Planteamiento del problema}
+\chapsection{Capítulo I. Planteamiento del problema}
 
 \subsection{Diagnóstico}
 En PISA 2022, únicamente el $50$\,\% de los estudiantes peruanos de 15 años alcanzó al menos el Nivel 2 de lectura, frente al $74$\,\% del promedio OCDE (OECD, 2023). Las brechas se concentran en las capacidades inferencial y crítica definidas en el Currículo Nacional de la Educación Básica (MINEDU, 2016).
@@ -382,15 +387,15 @@ Diseñar y evaluar en simulación una política que elija, en cada uno de los $T
 \end{itemize}
 
 % --- CAPÍTULO II ---
-\section{Capítulo II. Objetivos}
+\chapsection{Capítulo II. Objetivos}
 \textbf{Objetivo general (OG):} Desarrollar y evaluar en simulación una política de secuenciación adaptativa de textos basada en aprendizaje por refuerzo que maximice la ganancia de aprendizaje $\mathrm{LG}$ en comprensión lectora.
 
 \begin{table}[H]
   \centering
   \caption{Objetivos específicos y estado de avance al corte de la Semana 9.}
-  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{AmberGold}}p{2.3cm} X p{4.2cm} @{}}
+  \begin{tabularx}{\textwidth}{>{\leavevmode\bfseries\color{AmberGold}}p{2.3cm} X p{4.2cm}}
     \toprule
-    \rowcolor{AmberGold} \color{white}\textbf{Objetivo} & \color{white}\textbf{Descripción} & \color{white}\textbf{Estado al corte} \\
+    \rowcolor{AmberGold} \textbf{\color{white}Objetivo} & \textbf{\color{white}Descripción} & \textbf{\color{white}Estado al corte} \\
     \midrule
     OE1 & Determinar el aporte de las variables de acoplamiento ZPD (\code{zpd\_hit}, \code{abs\_gap}). & \textbf{\color{EmeraldGreen}Ejecutado} \\
     \rowcolor{RowTintBlue} OE2 & Evaluar el efecto de depurar el estado (eliminación de columnas muertas y colineales). & \textbf{\color{AmberGold}Ejecutado; no concluyente} \\
@@ -401,7 +406,7 @@ Diseñar y evaluar en simulación una política que elija, en cada uno de los $T
 
 % --- CAPÍTULO III ---
 \clearpage
-\section{Capítulo III. Marco teórico}
+\chapsection{Capítulo III. Marco teórico}
 
 \subsection{Bases teóricas}
 Siguiendo a Kintsch (1998) y al Currículo Nacional, se modelan $K = 3$ competencias lectoras (literal, inferencial y crítica). En cada paso $t \in \{1,\dots,50\}$, la probabilidad de acierto de un estudiante con habilidad $\theta_k \in [0,1]$ sobre un ítem con discriminación $a_j$, dificultad ajustada $b_{\text{adj},j}$ y parámetro de azar $c$ sigue el modelo logístico IRT-3PL (Birnbaum, 1968):
@@ -438,9 +443,9 @@ Dyna (Sutton, 1991; Sutton \& Barto, 2018) con \textit{rollouts} cortos (Janner 
 \begin{figure}[H]
   \centering
   \begin{tikzpicture}[
-    node distance=0.45cm and 0.55cm,
+    node distance=0.45cm and 0.45cm,
     box/.style={draw=#1, line width=1pt, fill=#1!10, rounded corners=4pt, text width=3.35cm, minimum height=1.55cm, align=center, font=\small},
-    planbox/.style={draw=#1, line width=1pt, dashed, fill=white, rounded corners=4pt, text width=4.65cm, minimum height=1.38cm, align=center, font=\small},
+    planbox/.style={draw=#1, line width=1pt, dashed, fill=white, rounded corners=4pt, text width=4.65cm, minimum height=1.9cm, align=center, font=\small},
     arr/.style={-{Stealth[length=2.3mm,width=1.8mm]}, line width=1.1pt, color=InkDark},
     darr/.style={-{Stealth[length=2.1mm,width=1.6mm]}, line width=0.95pt, dashed, color=RoyalViolet}
   ]
@@ -458,15 +463,15 @@ Dyna (Sutton, 1991; Sutton \& Barto, 2018) con \textit{rollouts} cortos (Janner 
     \node[anchor=south west, font=\footnotesize\bfseries, color=UNIGranate] at ($(sim.north west)+(0,0.14)$) {BLOQUES EJECUTADOS AL CORTE (SEMANA 9)};
 
     % Fila inferior: planificado
-    \node[planbox=RoyalViolet, below=1.35cm of sim.south west, anchor=north west, xshift=0.35cm] (mskt) {\textbf{\color{RoyalViolet}MSKT + NeuralCD} {\scriptsize(Sem. 13--14)}\\{\footnotesize Estimar $\hat{\theta}_k$ desde respuestas\\(reemplaza al oráculo $\theta^*$)}};
-    \node[planbox=UNIGranate, right=0.55cm of mskt] (dyna) {\textbf{\color{UNIGranate}Modelo de mundo + Dyna-PPO} {\scriptsize(Sem. 10--11)}\\{\footnotesize Planificación con \textit{rollouts} cortos\\sobre banco de narrativa peruana}};
-    \node[planbox=VividTeal, right=0.55cm of dyna] (hpo) {\textbf{\color{VividTeal}HPO + Confirmación} {\scriptsize(Sem. 12--14)}\\{\footnotesize Búsqueda fijada a priori y\\particiones nuevas independientes}};
+    \node[planbox=RoyalViolet, below=1.35cm of sim.south west, anchor=north west, xshift=0.35cm] (mskt) {\textbf{\color{RoyalViolet}MSKT + NeuralCD}\\{\scriptsize(Sem. 13--14)}\\{\footnotesize Estimar $\hat{\theta}_k$ desde respuestas\\(reemplaza al oráculo $\theta^*$)}};
+    \node[planbox=UNIGranate, right=0.55cm of mskt] (dyna) {\textbf{\color{UNIGranate}Modelo de mundo + Dyna-PPO}\\{\scriptsize(Sem. 10--11)}\\{\footnotesize Planificación con \textit{rollouts} cortos\\sobre banco de narrativa peruana}};
+    \node[planbox=VividTeal, right=0.55cm of dyna] (hpo) {\textbf{\color{VividTeal}HPO + Confirmación}\\{\scriptsize(Sem. 12--14)}\\{\footnotesize Búsqueda fijada a priori y\\particiones nuevas independientes}};
 
     \draw[darr] (mskt.north) -- ++(0,0.68) -| (vec.south);
     \draw[darr] (dyna.north) -- ++(0,0.68) -| (ppo.south);
     \draw[darr] (hpo.north) -- ++(0,0.48) -| (shd.south);
 
-    \node[anchor=north west, font=\footnotesize\bfseries, color=RoyalViolet] at ($(mskt.south west)+(0,-0.14)$) {ARQUITECTURA OBJETIVO PLANIFICADA (LÍNEA DISCONTINUA · SEMANAS 10--16)};
+    \node[anchor=north west, font=\footnotesize\bfseries, color=RoyalViolet] at ($(mskt.south west)+(0,-0.22)$) {ARQUITECTURA OBJETIVO PLANIFICADA (LÍNEA DISCONTINUA · SEMANAS 10--16)};
   \end{tikzpicture}
   \caption{Arquitectura del sistema: bloques implementados y ejecutados (arriba, trazo continuo) frente a componentes planificados (abajo, trazo discontinuo). La figura no contiene cifras de resultados.}
   \label{fig:arquitectura}
@@ -492,9 +497,9 @@ El umbral original $\mathrm{LG} \ge 0.50$ se retira formalmente: el propio simul
 \begin{table}[H]
   \centering
   \caption{Hipótesis de investigación y estado de contrastación al corte.}
-  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{VividTeal}}p{1.6cm} X p{6.8cm} @{}}
+  \begin{tabularx}{\textwidth}{>{\leavevmode\bfseries\color{VividTeal}}p{1.6cm} X p{6.8cm}}
     \toprule
-    \rowcolor{VividTeal} \color{white}\textbf{Hipótesis} & \color{white}\textbf{Enunciado} & \color{white}\textbf{Estado al corte} \\
+    \rowcolor{VividTeal} \textbf{\color{white}Hipótesis} & \textbf{\color{white}Enunciado} & \textbf{\color{white}Estado al corte} \\
     \midrule
     HG & PPO con el vector depurado de 7 variables (\code{D2}) supera a PPO con el vector crudo (\code{FS0}) y a las políticas aleatoria y de currículo fijo. & Respaldada de forma exploratoria ($+0.0298$, $10/10$ corridas). Criterio confirmatorio propuesto (a fijar con la asesora): particiones y semillas nuevas, IC\,95\,\% sin incluir $0$ y $\ge 40$\,\% del oráculo. \\
     \rowcolor{RowTintTeal} HE1 & \code{zpd\_hit} y \code{abs\_gap} son las dos variables más informativas del vector de estado--acción. & Parcialmente confirmada ($\Delta\mathrm{AUC}$ posiciones 1 y 2; $|\mathrm{SHAP}|$ posiciones 1 y 4). \\
@@ -512,14 +517,14 @@ El umbral original $\mathrm{LG} \ge 0.50$ se retira formalmente: el propio simul
 
 % --- CAPÍTULO IV ---
 \Needspace{12\baselineskip}
-\section{Capítulo IV. Diseño metodológico}
+\chapsection{Capítulo IV. Diseño metodológico}
 
 \begin{table}[H]
   \centering
   \caption{Resumen del diseño metodológico (Semanas 4--9).}
-  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{RoyalViolet}}p{3.6cm} X @{}}
+  \begin{tabularx}{\textwidth}{>{\leavevmode\bfseries\color{RoyalViolet}}p{3.6cm} X}
     \toprule
-    \rowcolor{RoyalViolet} \color{white}\textbf{Aspecto} & \color{white}\textbf{Decisión metodológica} \\
+    \rowcolor{RoyalViolet} \textbf{\color{white}Aspecto} & \textbf{\color{white}Decisión metodológica} \\
     \midrule
     4.1 Tipo & Investigación aplicada, cuantitativa, experimental computacional (\emph{in-silico}). \\
     \rowcolor{RowTintBlue} 4.2 Nivel & Explicativo dentro del simulador: se manipula el vector de variables manteniendo constantes los estudiantes, particiones y semillas. \\
@@ -528,22 +533,22 @@ El umbral original $\mathrm{LG} \ge 0.50$ se retira formalmente: el propio simul
     4.5 Diseño & Pareado: cada variante se entrena y evalúa sobre las mismas 10 corridas ($5\text{ folds} \times 2\text{ semillas}$). \\
     \rowcolor{RowTintBlue} 4.6 Instrumentos & Simulador (\code{src/simulator.py}), agente (\code{src/agent\_ppo\_linear.py}), corredor experimental (\code{src/experiment.py}) y registros JSON/CSV en \code{data/results/}. \\
     4.7 Análisis estadístico & Diferencia pareada $\bar{d}$ con IC\,95\,\% bootstrap percentil ($B=10\,000$), prueba exacta de permutación de signos, corrección de Holm (1979), tamaño del efecto $d_z = \bar{d}/s_d$ (Cohen, 1988), $\Delta\mathrm{AUC}$ por permutación, $|\mathrm{SHAP}|$ (Lundberg \& Lee, 2017) y $\mathrm{VIF}$. \\
-    \rowcolor{RowTintBlue} 4.8 Etapas & Cuatro ejecutadas (Semanas 4--7); Semanas 8--9 dedicadas al saneamiento de evidencia y este informe; cierre en Semanas 10--16. \\
+    \rowcolor{RowTintBlue} 4.8 Etapas & Cuatro ejecutadas (Semanas 4--7); Semanas 8--9 dedicadas a depurar la evidencia y a este informe; cierre en Semanas 10--16. \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
 % --- CAPÍTULO V ---
 \clearpage
-\section{Capítulo V. Administración del plan}
+\chapsection{Capítulo V. Administración del plan}
 
 \subsection{Cronograma}
 \begin{table}[H]
   \centering
   \caption{Cronograma de 16 semanas.}
-  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{UNIGranate}}p{1.7cm} X p{4.6cm} p{2.4cm} @{}}
+  \begin{tabularx}{\textwidth}{>{\leavevmode\bfseries\color{UNIGranate}}p{1.7cm} X p{4.6cm} >{\leavevmode}p{2.4cm}}
     \toprule
-    \rowcolor{UNIGranate} \color{white}\textbf{Semanas} & \color{white}\textbf{Actividad} & \color{white}\textbf{Producto verificable} & \color{white}\textbf{Estado} \\
+    \rowcolor{UNIGranate} \textbf{\color{white}Semanas} & \textbf{\color{white}Actividad} & \textbf{\color{white}Producto verificable} & \textbf{\color{white}Estado} \\
     \midrule
     1--3 & Simulador IRT-3PL y banco paramétrico & \code{src/simulator.py} & \textbf{\color{EmeraldGreen}Hecho} \\
     \rowcolor{RowTintBlue} 4 & Análisis exploratorio (EDA) & Rama \code{eda} (\code{723cbf8}) & \textbf{\color{EmeraldGreen}Hecho} \\
@@ -564,7 +569,7 @@ Sin desembolso monetario directo: se emplea software libre (Python, NumPy, sciki
 % ==============================================================================
 % PARTE II: PROTOCOLO Y AVANCE EXPERIMENTAL
 % ==============================================================================
-\partbanner{VividMagenta}{Parte II · Protocolo y resultados verificados}{PARTE II. Protocolo y avance experimental}
+\partbanner{VividMagenta}{Secciones 6 a 9}{PARTE II. Protocolo y avance experimental}
 
 \section{Datos y material de estudio}
 \begin{itemize}
@@ -584,9 +589,9 @@ Sin desembolso monetario directo: se emplea software libre (Python, NumPy, sciki
 \begin{table}[H]
   \centering
   \caption{Políticas de referencia y variantes evaluadas (Sección 7.4).}
-  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{VividTeal}}p{4.3cm} X @{}}
+  \begin{tabularx}{\textwidth}{>{\leavevmode\bfseries\color{VividTeal}}p{4.3cm} X}
     \toprule
-    \rowcolor{VividTeal} \color{white}\textbf{Identificador} & \color{white}\textbf{Descripción} \\
+    \rowcolor{VividTeal} \textbf{\color{white}Identificador} & \textbf{\color{white}Descripción} \\
     \midrule
     Aleatoria / Currículo fijo & Políticas de referencia sin aprendizaje (selección uniforme; secuencia fija de textos en nivel medio). \\
     \rowcolor{RowTintTeal} \code{FS0\_raw13} & PPO lineal con las 13 variables crudas del estado (línea base). \\
@@ -610,15 +615,15 @@ Sin desembolso monetario directo: se emplea software libre (Python, NumPy, sciki
 \subsection{Estado de implementación}
 
 \begin{calloutbox}[TintRose]{VividMagenta}{Depuración de evidencia respecto del avance de la Semana 8}
-Las cifras de ablación \code{B0}--\code{B5} y de optimización de hiperparámetros reportadas en el borrador previo ($\mathrm{LG}$ entre $0.50$ y $0.53$) no provenían de corridas ejecutadas sobre el código versionado. Fueron retiradas junto con sus figuras sintéticas tanto del informe como de la rama de entrega.
+Las cifras de ablación \code{B0}--\code{B5} y de optimización de hiperparámetros reportadas en el borrador previo ($\mathrm{LG}$ entre $0.50$ y $0.53$) no provenían de corridas ejecutadas sobre el código versionado. Fueron retiradas junto con sus figuras, tanto del informe como de la rama de entrega.
 \end{calloutbox}
 
 \begin{table}[H]
   \centering
   \caption{Estado de implementación de componentes al corte de la Semana 9.}
-  \begin{tabularx}{\textwidth}{@{} X >{\bfseries}p{3.6cm} @{}}
+  \begin{tabularx}{\textwidth}{X >{\leavevmode\bfseries}p{3.6cm}}
     \toprule
-    \rowcolor{UNIGranate} \color{white}\textbf{Componente del sistema} & \color{white}\textbf{Estado} \\
+    \rowcolor{UNIGranate} \textbf{\color{white}Componente del sistema} & \textbf{\color{white}Estado} \\
     \midrule
     Simulador IRT-3PL con ventana ZPD y olvido multiplicativo & \color{EmeraldGreen}Ejecutado \\
     \rowcolor{RowTintBlue} Variables ZPD, auditoría de columnas e importancia ($\Delta\mathrm{AUC}$, $|\mathrm{SHAP}|$, $\mathrm{VIF}$) & \color{EmeraldGreen}Ejecutado \\
@@ -637,16 +642,16 @@ Las cifras de ablación \code{B0}--\code{B5} y de optimización de hiperparámet
   \caption{Desempeño en alumnos no vistos ($10$ corridas pareadas: $5$ \textit{folds} $\times$ $2$ semillas). Fuente: \code{summary.json} y \code{runs\_oracle.json}.}
   \footnotesize
   \setlength{\tabcolsep}{4pt}
-  \begin{tabularx}{\textwidth}{@{} l c c c c c l @{}}
+  \begin{tabularx}{\textwidth}{l c c c c c >{\raggedright\arraybackslash}X}
     \toprule
     \rowcolor{ElectricBlue}
-    \color{white}\textbf{Política / vector} &
-    \color{white}\textbf{$\mathrm{LG}$ (media $\pm$ DE)} &
-    \color{white}\textbf{$\Delta\mathrm{LG}$ vs. \code{FS0} [IC\,95\,\%]} &
-    \color{white}\textbf{$p_{\text{perm}}$} &
-    \color{white}\textbf{$d_z$} &
-    \color{white}\textbf{Vict.} &
-    \color{white}\textbf{Decisión} \\
+    \textbf{\color{white}Política / vector} &
+    \textbf{\color{white}$\mathrm{LG}$ (media $\pm$ DE)} &
+    \textbf{\color{white}$\Delta\mathrm{LG}$ vs. \texttt{FS0} [IC\,95\,\%]} &
+    \textbf{\color{white}$p_{\text{perm}}$} &
+    \textbf{\color{white}$d_z$} &
+    \textbf{\color{white}Vict.} &
+    \textbf{\color{white}Decisión} \\
     \midrule
     Aleatoria & $-0.0443$ & --- & --- & --- & --- & Referencia \\
     \rowcolor{RowTintBlue} Currículo fijo & $-0.0299$ & --- & --- & --- & --- & Referencia \\
@@ -655,7 +660,7 @@ Las cifras de ablación \code{B0}--\code{B5} y de optimización de hiperparámet
     \code{D1\_zpd2} & $+0.0094 \pm 0.0159$ & $+0.0189\ [+0.0107,\, +0.0278]$ & $0.0039$ & $1.30$ & $9/10$ & Intermedia \\
     \rowcolor{RowTintBlue} \code{FS1\_zpd4} & $+0.0105 \pm 0.0150$ & $+0.0200\ [+0.0130,\, +0.0274]$ & $0.00195$ {\scriptsize(Holm $0.0039$)} & $1.61$ & $10/10$ & Adoptada \\
     \rowcolor{RowTintRose}
-    \textbf{\color{VividMagenta}\code{D2\_clean5\_zpd2}} &
+    \textbf{\color{VividMagenta}\texttt{D2\_clean5\_zpd2}} &
     \textbf{\color{VividMagenta}$+0.0203 \pm 0.0167$} &
     \textbf{\color{VividMagenta}$+0.0298\ [+0.0225,\, +0.0372]$} &
     \textbf{\color{VividMagenta}$0.00195$} &
@@ -726,7 +731,7 @@ Las cifras de ablación \code{B0}--\code{B5} y de optimización de hiperparámet
       \node[anchor=south, font=\footnotesize\bfseries, color=ElectricBlue, fill=white, inner sep=1pt] at (axis cs:3,0.0112) {$-0.0063$};
       \node[anchor=south, font=\footnotesize\bfseries, color=VividTeal, fill=white, inner sep=1pt] at (axis cs:4,0.0268) {$+0.0094$};
       \node[anchor=south, font=\footnotesize\bfseries, color=AmberGold, fill=white, inner sep=1pt] at (axis cs:5,0.0270) {$+0.0105$};
-      \node[anchor=south, font=\footnotesize\bfseries, color=UNIGranate, fill=white, inner sep=1pt] at (axis cs:6,0.0385) {$+0.0203$};
+      \node[anchor=west, font=\footnotesize\bfseries, color=UNIGranate, fill=white, inner sep=1pt] at (axis cs:6.30,0.0290) {$+0.0203$};
     \end{axis}
   \end{tikzpicture}
   \caption{Escalera de políticas: ganancia $\mathrm{LG}$ por episodio (media $\pm$ $1\;\mathrm{DE}$ sobre $10$ corridas pareadas). Fuente: \code{summary.json} y \code{runs\_oracle.json}.}
@@ -793,9 +798,9 @@ Las cifras de ablación \code{B0}--\code{B5} y de optimización de hiperparámet
 \begin{table}[H]
   \centering
   \caption{Ablaciones controladas sobre el vector de estado--acción.}
-  \begin{tabularx}{\textwidth}{@{} p{5.1cm} p{4.9cm} X @{}}
+  \begin{tabularx}{\textwidth}{p{5.1cm} p{4.9cm} X}
     \toprule
-    \rowcolor{AmberGold} \color{white}\textbf{Cambio evaluado} & \color{white}\textbf{Resultado pareado} & \color{white}\textbf{Lectura técnica} \\
+    \rowcolor{AmberGold} \textbf{\color{white}Cambio evaluado} & \textbf{\color{white}Resultado pareado} & \textbf{\color{white}Lectura técnica} \\
     \midrule
     Añadir 2 vars. ZPD (\code{D1} vs. \code{FS0}) & $+0.0189\ [+0.0107,\,+0.0278]$, $9/10$ & El acoplamiento habilidad--dificultad explica el salto principal de $\mathrm{LG}$. \\
     \rowcolor{RowTintBlue} Añadir historial (\code{FS2} vs. \code{FS0}) & $+0.0032$, $p = 0.494$, $5/10$ & Sin efecto detectable; variante descartada. \\
@@ -804,7 +809,7 @@ Las cifras de ablación \code{B0}--\code{B5} y de optimización de hiperparámet
   \end{tabularx}
 \end{table}
 
-En el modelo supervisado de transición de aprendizaje ($k=5$ \textit{folds}, $\mathrm{ROC\text{-}AUC} = 0.9479 \pm 0.0049$, $\text{Brier} = 0.0703$, $\text{ECE} = 0.0576$ frente a $\mathrm{AUC} = 0.4974 \pm 0.0178$ en \code{FS0\_raw13}), \code{zpd\_hit} concentra la importancia por permutación ($\Delta\mathrm{AUC} = +0.0959$), seguida de \code{abs\_gap} ($+0.0140$) y \code{theta\_3} ($+0.0047$); las cuatro restantes oscilan cerca de cero o negativas. Por magnitud media de Shapley ($|\mathrm{SHAP}|$), \code{zpd\_hit} lidera ($0.0677$) y \code{abs\_gap} se ubica cuarta ($0.0127$). La multicolinealidad del vector depurado de 7 variables permanece controlada con $\mathrm{VIF}_{\max} = 2.125$ (\code{abs\_gap}).
+En el modelo supervisado de transición de aprendizaje (\code{sprint2\_diagnostics.json}, $k=5$ \textit{folds}, $\mathrm{ROC\text{-}AUC} = 0.9479 \pm 0.0049$, $\text{Brier} = 0.0703$, $\text{ECE} = 0.0576$ frente a $\mathrm{AUC} = 0.4974 \pm 0.0178$ en \code{FS0\_raw13}; distinto del contraste de señales base en \code{summary.json} con $\code{auc\_raw} = 0.9253$ y $\code{auc\_sigmoid} = 0.6395$), \code{zpd\_hit} concentra la importancia por permutación ($\Delta\mathrm{AUC} = +0.0959$), seguida de \code{abs\_gap} ($+0.0140$) y \code{theta\_3} ($+0.0047$); las cuatro restantes oscilan cerca de cero o negativas. Por magnitud media de Shapley ($|\mathrm{SHAP}|$), \code{zpd\_hit} lidera ($0.0677$) y \code{abs\_gap} se ubica cuarta ($0.0127$). La multicolinealidad del vector depurado de 7 variables permanece controlada con $\mathrm{VIF}_{\max} = 2.125$ (\code{abs\_gap}).
 
 % --- FIGURA 4: IMPORTANCIA (3 PANELES GROUPPLOTS VECTORIAL) ---
 \begin{figure}[H]
@@ -910,14 +915,14 @@ En el modelo supervisado de transición de aprendizaje ($k=5$ \textit{folds}, $\
 \end{itemize}
 
 \subsection{Interpretación y amenazas a la validez}
-En una sesión corta de $T=50$ pasos domina el olvido multiplicativo (ec.~\ref{eq:forget}): tanto las políticas sin aprendizaje como \code{FS0\_raw13} pierden habilidad neta. Informar explícitamente al agente sobre la distancia habilidad--dificultad revierte el signo y recupera el $49.4$\,\% de la ganancia del oráculo ZPD ($+0.0203 / +0.0411$). La brecha entre el oráculo ($+0.0411$) y la cota superior de acertar dentro de ZPD en todos los 50 pasos ($0.3255$) sugiere que el banco paramétrico actual rara vez ofrece ítems dentro de $|\theta_k - b_{\text{adj}}| < 0.5$, hipótesis abierta para el siguiente sprint.
+En una sesión corta de $T=50$ pasos domina el olvido multiplicativo (ec.~\ref{eq:forget}): tanto las políticas sin aprendizaje como \code{FS0\_raw13} pierden habilidad neta. Informar explícitamente al agente sobre la distancia habilidad--dificultad revierte el signo y recupera el $49.4$\,\% de la ganancia del oráculo ZPD ($+0.0203/{+}0.0411$). La brecha entre el oráculo ($+0.0411$) y la cota superior de acertar dentro de ZPD en todos los 50 pasos ($0.3255$) sugiere que el banco paramétrico actual rara vez ofrece ítems dentro de $|\theta_k - b_{\text{adj}}| < 0.5$, hipótesis abierta para el siguiente sprint.
 
 \begin{table}[H]
   \centering
   \caption{Amenazas a la validez identificadas al corte.}
-  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{RoyalViolet}}p{3.0cm} X @{}}
+  \begin{tabularx}{\textwidth}{>{\leavevmode\bfseries\color{RoyalViolet}}p{3.0cm} X}
     \toprule
-    \rowcolor{RoyalViolet} \color{white}\textbf{Tipo de validez} & \color{white}\textbf{Descripción de la amenaza} \\
+    \rowcolor{RoyalViolet} \textbf{\color{white}Tipo de validez} & \textbf{\color{white}Descripción de la amenaza} \\
     \midrule
     Constructo & \code{zpd\_hit} reproduce la regla exacta con la que el simulador genera aprendizaje (ec.~\ref{eq:learn}); su poder predictivo es esperable por construcción. \\
     \rowcolor{RowTintBlue} Interna & El agente observa $\theta^*$ verdadero; con estimadores ruidosos de $\hat{\theta}$ la ventaja disminuye (ver prueba Elo). \\
@@ -932,8 +937,8 @@ En una sesión corta de $T=50$ pasos domina el olvido multiplicativo (ec.~\ref{e
 
 \subsection{Conclusiones sustentadas}
 \begin{enumerate}[label=\textbf{\color{VividMagenta}\arabic*.}, leftmargin=1.6em, itemsep=3pt]
-  \item \textbf{Variables de acoplamiento:} incorporar indicadores de acoplamiento ZPD mejora sustancialmente la ganancia $\mathrm{LG}$ frente al vector crudo (\code{FS1}: $+0.0200$, $p_{\text{perm}}=0.00195$, $10/10$ corridas; \code{D1}: $+0.0189$, $9/10$).
-  \item \textbf{Vector depurado óptimo:} \code{D2\_clean5\_zpd2} ($7$ variables) obtiene la mejor ganancia absoluta ($+0.0203 \pm 0.0167$, $\Delta = +0.0298$, $d_z = 2.40$) y alcanza el $49.4$\,\% de la referencia de oráculo ($+0.0411$).
+  \item \textbf{Variables de acoplamiento:} incorporar indicadores de acoplamiento ZPD mejora la ganancia $\mathrm{LG}$ frente al vector crudo (\code{FS1}: $+0.0200$, $p_{\text{perm}}=0.00195$, $10/10$ corridas; \code{D1}: $+0.0189$, $9/10$).
+  \item \textbf{Vector depurado:} \code{D2\_clean5\_zpd2} ($7$ variables) obtiene la mayor ganancia media ($+0.0203 \pm 0.0167$, $\Delta = +0.0298$, $d_z = 2.40$) y alcanza el $49.4$\,\% de la referencia de oráculo ($+0.0411$).
   \item \textbf{Historial y depuración adicional:} el historial temporal (\code{FS2}) no aporta señal detectable ($+0.0032$, $p=0.494$); la depuración adicional (\code{D2} vs. \code{FS1}) muestra tendencia favorable ($+0.0098$, $8/10$) aún no significativa ($p = 0.0605$).
 \end{enumerate}
 
@@ -943,9 +948,9 @@ En una sesión corta de $T=50$ pasos domina el olvido multiplicativo (ec.~\ref{e
 \begin{table}[H]
   \centering
   \caption{Matriz de riesgos y estrategias de mitigación.}
-  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{UNIGranate}}p{4.4cm} p{1.6cm} X @{}}
+  \begin{tabularx}{\textwidth}{>{\leavevmode\bfseries\color{UNIGranate}}p{4.4cm} p{1.6cm} X}
     \toprule
-    \rowcolor{UNIGranate} \color{white}\textbf{Riesgo} & \color{white}\textbf{Impacto} & \color{white}\textbf{Mitigación} \\
+    \rowcolor{UNIGranate} \textbf{\color{white}Riesgo} & \textbf{\color{white}Impacto} & \textbf{\color{white}Mitigación} \\
     \midrule
     Circularidad variable--simulador & \textbf{\color{VividMagenta}Alto} & Evaluar la política congelada sobre un simulador de familia distinta (BKT). \\
     \rowcolor{RowTintRose} Dependencia de $\theta^*$ verdadero & \textbf{\color{VividMagenta}Alto} & Sustituir por estimador aprendido (MSKT/NeuralCD) y repetir el contraste pareado. \\
@@ -959,9 +964,9 @@ En una sesión corta de $T=50$ pasos domina el olvido multiplicativo (ec.~\ref{e
 \begin{table}[H]
   \centering
   \caption{Actividades y criterios de aceptación del siguiente sprint.}
-  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{VividTeal}}p{4.0cm} p{4.2cm} X p{1.6cm} @{}}
+  \begin{tabularx}{\textwidth}{>{\leavevmode\bfseries\color{VividTeal}}p{4.0cm} p{4.2cm} X p{1.6cm}}
     \toprule
-    \rowcolor{VividTeal} \color{white}\textbf{Actividad} & \color{white}\textbf{Entregable} & \color{white}\textbf{Criterio de aceptación} & \color{white}\textbf{Semana} \\
+    \rowcolor{VividTeal} \textbf{\color{white}Actividad} & \textbf{\color{white}Entregable} & \textbf{\color{white}Criterio de aceptación} & \textbf{\color{white}Semana} \\
     \midrule
     Modelo del mundo $+$ \textit{Dyna-PPO} & Módulos en \code{src/} y logs por corrida & Resultados ejecutados y trazados por script versionado & 10--11 \\
     \rowcolor{RowTintTeal} Búsqueda de hiperparámetros & Registro completo de trials & Espacio de búsqueda y presupuesto fijados antes de ejecutar & 12 \\
@@ -1016,12 +1021,12 @@ En una sesión corta de $T=50$ pasos domina el olvido multiplicativo (ec.~\ref{e
   \centering
   \caption{Matriz de consistencia al corte de la Semana 9.}
   \footnotesize
-  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{ElectricBlue}}p{1.2cm} p{1.1cm} p{4.2cm} p{3.6cm} X @{}}
+  \begin{tabularx}{\textwidth}{>{\leavevmode\bfseries\color{ElectricBlue}}p{1.2cm} p{1.1cm} p{4.2cm} p{3.6cm} >{\raggedright\arraybackslash}X}
     \toprule
     \rowcolor{ElectricBlue}
-    \color{white}\textbf{Probl.} & \color{white}\textbf{Obj.} & \color{white}\textbf{Hipótesis} & \color{white}\textbf{Variables} & \color{white}\textbf{Indicador y resultado} \\
+    \textbf{\color{white}Probl.} & \textbf{\color{white}Obj.} & \textbf{\color{white}Hipótesis} & \textbf{\color{white}Variables} & \textbf{\color{white}Indicador y resultado} \\
     \midrule
-    PG & OG & HG: PPO con vector depurado supera a vector crudo y políticas base & VI: conjunto de variables y política.\newline VD: ganancia $\mathrm{LG}$ & $\mathrm{LG}\ -0.0095 \rightarrow +0.0203$; $\Delta = +0.0298\ [+0.0225,\,+0.0372]$; $49.4$\,\% del oráculo \\
+    PG & OG & HG: PPO con vector depurado supera a vector crudo y políticas base & VI: conjunto de variables y política.\newline VD: ganancia $\mathrm{LG}$ & $\mathrm{LG}$: $-0.0095 \rightarrow +0.0203$; $\Delta = +0.0298\ [+0.0225,\,+0.0372]$; $49.4$\,\% del oráculo \\
     \rowcolor{RowTintBlue} PE1 & OE1 & HE1: \code{zpd\_hit} y \code{abs\_gap} son las más informativas & VI: \code{zpd\_hit}, \code{abs\_gap}.\newline VD: transición aprendizaje & $\Delta\mathrm{AUC}$ \#1 y \#2; $|\mathrm{SHAP}|$ \#1 y \#4. Parcialmente confirmada \\
     PE2 & OE2 & HE2: depurar el estado mejora la ganancia & VI: estado limpio vs. completo.\newline VD: ganancia $\mathrm{LG}$ & $\Delta = +0.0098$, $p = 0.0605$, $d_z=0.60$. No confirmada \\
     \rowcolor{RowTintBlue} PE3 & OE3 & HE3: \textit{Dyna-PPO} ajustado supera a PPO & VI: planificación e HPO.\newline VD: ganancia y eficiencia & Sin evaluar (planificada para Semanas 10--14) \\
@@ -1031,20 +1036,20 @@ En una sesión corta de $T=50$ pasos domina el olvido multiplicativo (ec.~\ref{e
 
 \subsection*{Anexo B. Enlace al último branch y trazabilidad}
 \addcontentsline{toc}{subsection}{Anexo B. Enlace al último branch y trazabilidad}
-\textbf{\color{VividMagenta}Rama de entrega:} \url{https://github.com/yasminum/SistemaTutorInteligente/tree/feat/hyperparameter-optimization} — código, datos, logs y resultados reales verificados en commit \code{77c6cfe} (compilación \LaTeX/PDF de este informe añadida en \code{docs/}). La rama conserva su denominación original aunque la búsqueda de hiperparámetros quedó programada para la Semana 12.
+\textbf{\color{VividMagenta}Rama de entrega:} \url{https://github.com/yasminum/SistemaTutorInteligente/tree/feat/hyperparameter-optimization} — código, datos y registros en el commit \code{77c6cfe} (compilación \LaTeX/PDF de este informe añadida en \code{docs/}). La rama conserva su denominación original aunque la búsqueda de hiperparámetros quedó programada para la Semana 12.
 
 \begin{table}[H]
   \centering
-  \caption{Ramas y commits verificados del sprint.}
-  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{UNIGranate}}p{4.6cm} X p{2.8cm} @{}}
+  \caption{Ramas y commits del sprint.}
+  \begin{tabularx}{\textwidth}{>{\leavevmode\bfseries\color{UNIGranate}}p{4.6cm} X p{1.8cm}}
     \toprule
-    \rowcolor{VividMagenta} \color{white}\textbf{Etapa} & \color{white}\textbf{Rama} & \color{white}\textbf{Commit} \\
+    \rowcolor{VividMagenta} \textbf{\color{white}Etapa} & \textbf{\color{white}Rama} & \textbf{\color{white}Commit} \\
     \midrule
     EDA (Semana 4) & \code{eda} & \code{723cbf8} \\
     \rowcolor{RowTintRose} Variables ZPD (Semana 5) & \code{feature-engineering} & \code{b1dd663} \\
     Auditoría y poda (Semana 6) & \code{data-centric-audit-and-pruning} & \code{b8795ab} \\
     \rowcolor{RowTintRose} Importancia y matriz (Semana 7) & \code{feat/variable-importance-and-consistency-matrix} & \code{e659281} \\
-    Saneamiento código/datos (Semana 9) & \code{feat/hyperparameter-optimization} & \code{77c6cfe} \\
+    Depuración de evidencia (Semana 9) & \code{feat/hyperparameter-optimization} & \code{77c6cfe} \\
     \bottomrule
   \end{tabularx}
 \end{table}
@@ -1054,9 +1059,9 @@ En una sesión corta de $T=50$ pasos domina el olvido multiplicativo (ec.~\ref{e
 \begin{table}[H]
   \centering
   \caption{Variables candidatas del estado--acción y decisión de selección.}
-  \begin{tabularx}{\textwidth}{@{} >{\bfseries}p{5.5cm} X p{4.2cm} @{}}
+  \begin{tabularx}{\textwidth}{>{\leavevmode\bfseries}p{5.5cm} X >{\leavevmode}p{4.2cm}}
     \toprule
-    \rowcolor{VividTeal} \color{white}\textbf{Variable} & \color{white}\textbf{Definición} & \color{white}\textbf{Decisión} \\
+    \rowcolor{VividTeal} \textbf{\color{white}Variable} & \textbf{\color{white}Definición} & \textbf{\color{white}Decisión} \\
     \midrule
     \code{zpd\_hit} & $\mathbf{1}\!\big[|\theta_k - b_a| < 0.5\big]$ & \textbf{\color{EmeraldGreen}Retenida} \\
     \rowcolor{RowTintTeal} \code{abs\_gap} & $|\theta_k - b_a|$ & \textbf{\color{EmeraldGreen}Retenida} \\
@@ -1070,17 +1075,17 @@ En una sesión corta de $T=50$ pasos domina el olvido multiplicativo (ec.~\ref{e
 
 \subsection*{Anexo D. Registro individual de corridas}
 \addcontentsline{toc}{subsection}{Anexo D. Registro individual de corridas}
-\textbf{\color{AmberGold}Configuración (\code{runs\_oracle.json}):} \code{n\_students} $= 100$, \code{k\_folds} $= 5$, \code{fold\_seed} $= 2026$, \code{bank\_seed} $= 2026$, \code{seeds} $= [0, 1]$, \code{train\_episodes} $= 1500$. Huellas íntegras: \code{code\_sha256} $= \code{ed9d8eac\ldots 49b1a}$, \code{data\_sha256} $= \code{07ed76f0\ldots d4706}$.
+\textbf{\color{AmberGold}Configuración (\code{runs\_oracle.json}):} \code{n\_students} $= 100$, \code{k\_folds} $= 5$, \code{fold\_seed} $= 2026$, \code{bank\_seed} $= 2026$, \code{seeds} $= [0, 1]$, \code{train\_episodes} $= 1500$. Huellas SHA-256: \code{code\_sha256} $= \code{ed9d8eac\ldots 49b1a}$, \code{data\_sha256} $= \code{07ed76f0\ldots d4706}$.
 
 \begin{table}[H]
   \centering
   \caption{Ganancia $\mathrm{LG}$ por corrida individual de \code{D2\_clean5\_zpd2}.}
   \scriptsize
-  \setlength{\tabcolsep}{3.5pt}
-  \begin{tabular}{@{} l c c c c c c c c c c @{}}
+  \setlength{\tabcolsep}{3.0pt}
+  \begin{tabular}{l c c c c c c c c c c}
     \toprule
     \rowcolor{AmberGold}
-    \color{white}\textbf{Corrida} & \color{white}\textbf{1} & \color{white}\textbf{2} & \color{white}\textbf{3} & \color{white}\textbf{4} & \color{white}\textbf{5} & \color{white}\textbf{6} & \color{white}\textbf{7} & \color{white}\textbf{8} & \color{white}\textbf{9} & \color{white}\textbf{10} \\
+    \textbf{\color{white}Corrida} & \textbf{\color{white}1} & \textbf{\color{white}2} & \textbf{\color{white}3} & \textbf{\color{white}4} & \textbf{\color{white}5} & \textbf{\color{white}6} & \textbf{\color{white}7} & \textbf{\color{white}8} & \textbf{\color{white}9} & \textbf{\color{white}10} \\
     \midrule
     \code{D2 LG} & $-0.0029$ & $+0.0085$ & $+0.0100$ & $+0.0044$ & $+0.0382$ & $+0.0345$ & $+0.0496$ & $+0.0152$ & $+0.0269$ & $+0.0185$ \\
     \bottomrule
@@ -1092,9 +1097,9 @@ En una sesión corta de $T=50$ pasos domina el olvido multiplicativo (ec.~\ref{e
 \begin{table}[H]
   \centering
   \caption{Pruebas automáticas de no-fuga (\code{python -m src.leakage\_checks} y \code{tests/test\_leakage\_checks.py}). Resultado: $5/5$ PASS ($\code{leakage\_all\_pass} = \code{true}$).}
-  \begin{tabularx}{\textwidth}{@{} >{\bfseries\color{RoyalViolet}}p{1.6cm} X @{}}
+  \begin{tabularx}{\textwidth}{>{\leavevmode\bfseries\color{RoyalViolet}}p{1.6cm} X}
     \toprule
-    \rowcolor{RoyalViolet} \color{white}\textbf{Prueba} & \color{white}\textbf{Propiedad verificada} \\
+    \rowcolor{RoyalViolet} \textbf{\color{white}Prueba} & \textbf{\color{white}Propiedad verificada} \\
     \midrule
     L1 & Ningún estudiante aparece simultáneamente en entrenamiento y validación dentro del mismo \textit{fold}. \\
     \rowcolor{RowTintBlue} L2 & El vector de estado en el paso $t$ es invariante ante alteraciones de respuestas futuras ($>t$). \\
