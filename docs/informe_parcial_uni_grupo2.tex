@@ -323,8 +323,7 @@ El plan de tesis propone un tutor adaptativo de comprensión lectora que decide 
 \clearpage
 \renewcommand{\contentsname}{\color{RoyalViolet}Índice general}
 \setcounter{tocdepth}{2}
-\tableofcontents
-
+{\small\setstretch{1.05}\tableofcontents}
 % ==============================================================================
 % PARTE I: PLAN DE TESIS
 % ==============================================================================
@@ -434,7 +433,7 @@ El prototipo (\code{src/agent\_ppo\_linear.py}) implementa optimización de pol�
   L^{\mathrm{CLIP}}(\phi) = \hat{\mathbb{E}}_t\!\left[\min\!\Big(r_t(\phi)\hat{A}_t,\; \mathrm{clip}\big(r_t(\phi),\, 1-\epsilon,\, 1+\epsilon\big)\hat{A}_t\Big)\right], \qquad r_t(\phi) = \frac{\pi_\phi(a_t \mid s_t)}{\pi_{\phi_{\text{old}}}(a_t \mid s_t)},\;\; \epsilon = 0.2,
   \label{eq:ppo}
 \end{equation}
-con $\hat{A}_t = \sum_{l=0}^{T-t-1} (\gamma\lambda)^l \delta_{t+l}^V$ ($\gamma=0.99$, $\lambda=0.95$), penalización de entropía $0.01$, $lr_\pi = 0.02$ y $lr_V = 0.01$. La recompensa del entorno replica $R_t = \mathrm{clip}(0.5\,\Delta KS + 0.25\,\hat{E} + 0.25\,\hat{F} - 0.5\,\mathrm{costo},\,-1,\,1)$ y un escudo de seguridad fuerza $\text{nivel}=0$ cuando la racha de errores $\ge 4$.
+con $\hat{A}_t = \sum_{l=0}^{T-t-1} (\gamma\lambda)^l \delta_{t+l}^V$ ($\gamma=0.99$, $\lambda=0.95$), penalización de entropía $0.01$, $lr_\pi = 0.02$ y $lr_V = 0.01$. La recompensa escalar replica $R_t = \mathrm{clip}(0.5\,\Delta KS + 0.25\,\hat{E} + 0.25\,\hat{F} - 0.5\,\mathrm{costo},\,-1,\,1)$, donde $\Delta KS = 0.01\,Y_t$ y $\hat{E} = 0.7 + 0.3\,Y_t$ premian el acierto inmediato, $\hat{F}$ mide proximidad gaussiana a ZPD y $\mathrm{costo}$ penaliza repetir ítem o saltos $|\Delta\text{nivel}|>1$; además, un escudo fuerza $\text{nivel}=0$ cuando la racha de errores $\ge 4$.
 \end{mathbox}
 
 \subsubsection*{Planificación con modelo y seguridad (arquitectura objetivo)}
@@ -443,16 +442,16 @@ Dyna (Sutton, 1991; Sutton \& Barto, 2018) con \textit{rollouts} cortos (Janner 
 \begin{figure}[H]
   \centering
   \begin{tikzpicture}[
-    node distance=0.45cm and 0.45cm,
+    node distance=0.45cm and 0.34cm,
     box/.style={draw=#1, line width=1pt, fill=#1!10, rounded corners=4pt, text width=3.35cm, minimum height=1.55cm, align=center, font=\small},
-    planbox/.style={draw=#1, line width=1pt, dashed, fill=white, rounded corners=4pt, text width=4.65cm, minimum height=1.9cm, align=center, font=\small},
+    planbox/.style={draw=#1, line width=1pt, dashed, fill=white, rounded corners=4pt, text width=4.55cm, minimum height=1.9cm, align=center, font=\small},
     arr/.style={-{Stealth[length=2.3mm,width=1.8mm]}, line width=1.1pt, color=InkDark},
     darr/.style={-{Stealth[length=2.1mm,width=1.6mm]}, line width=0.95pt, dashed, color=RoyalViolet}
   ]
     % Fila superior: implementado
-    \node[box=ElectricBlue] (sim) {\textbf{\color{ElectricBlue}Simulador IRT-3PL}\\{\footnotesize 30 textos $\times$ 10 ítems\\ZPD $|\theta_k - b_{\text{adj}}|<0.5$ + olvido}};
+    \node[box=ElectricBlue] (sim) {\textbf{\color{ElectricBlue}Simulador IRT-3PL}\\{\footnotesize 30 textos $\times$ 10 ítems\\ZPD $|\theta_k - b_{\text{adj}}|<0.5$\\+ olvido}};
     \node[box=VividMagenta, right=of sim] (vec) {\textbf{\color{VividMagenta}Vector \code{D2} (7 vars.)}\\{\footnotesize \code{zpd\_hit}, \code{abs\_gap}, $\theta_1..\theta_3$\\ \code{b\_prev\_raw}, \code{u\_progress}}};
-    \node[box=VividTeal, right=of vec] (ppo) {\textbf{\color{VividTeal}Agente PPO lineal}\\{\footnotesize \code{src/agent\_ppo\_linear.py}\\5 \textit{folds} $\times$ 2 semillas}};
+    \node[box=VividTeal, right=of vec] (ppo) {\textbf{\color{VividTeal}Agente PPO lineal}\\{\scriptsize \code{src/agent\_ppo\_linear.py}}\\{\footnotesize 5 \textit{folds} $\times$ 2 semillas}};
     \node[box=AmberGold, right=of ppo] (shd) {\textbf{\color{AmberGold}Escudo de racha}\\{\footnotesize racha $\ge 4 \Rightarrow \text{nivel}=0$\\(regla en simulador)}};
 
     \draw[arr] (sim) -- (vec);
@@ -463,9 +462,9 @@ Dyna (Sutton, 1991; Sutton \& Barto, 2018) con \textit{rollouts} cortos (Janner 
     \node[anchor=south west, font=\footnotesize\bfseries, color=UNIGranate] at ($(sim.north west)+(0,0.14)$) {BLOQUES EJECUTADOS AL CORTE (SEMANA 9)};
 
     % Fila inferior: planificado
-    \node[planbox=RoyalViolet, below=1.35cm of sim.south west, anchor=north west, xshift=0.35cm] (mskt) {\textbf{\color{RoyalViolet}MSKT + NeuralCD}\\{\scriptsize(Sem. 13--14)}\\{\footnotesize Estimar $\hat{\theta}_k$ desde respuestas\\(reemplaza al oráculo $\theta^*$)}};
-    \node[planbox=UNIGranate, right=0.55cm of mskt] (dyna) {\textbf{\color{UNIGranate}Modelo de mundo + Dyna-PPO}\\{\scriptsize(Sem. 10--11)}\\{\footnotesize Planificación con \textit{rollouts} cortos\\sobre banco de narrativa peruana}};
-    \node[planbox=VividTeal, right=0.55cm of dyna] (hpo) {\textbf{\color{VividTeal}HPO + Confirmación}\\{\scriptsize(Sem. 12--14)}\\{\footnotesize Búsqueda fijada a priori y\\particiones nuevas independientes}};
+    \node[planbox=RoyalViolet, below=1.35cm of sim.south west, anchor=north west, xshift=0.20cm] (mskt) {\textbf{\color{RoyalViolet}MSKT + NeuralCD}\\{\scriptsize(Sem. 13--14)}\\{\footnotesize Estimar $\hat{\theta}_k$ desde respuestas\\(reemplaza al oráculo $\theta^*$)}};
+    \node[planbox=UNIGranate, right=0.42cm of mskt] (dyna) {\textbf{\color{UNIGranate}Modelo de mundo\\+ Dyna-PPO}\\{\scriptsize(Sem. 10--11)}\\{\footnotesize Planificación con \textit{rollouts} cortos\\sobre banco de narrativa peruana}};
+    \node[planbox=VividTeal, right=0.42cm of dyna] (hpo) {\textbf{\color{VividTeal}HPO + Confirmación}\\{\scriptsize(Sem. 12--14)}\\{\footnotesize Búsqueda fijada a priori y\\particiones nuevas independientes}};
 
     \draw[darr] (mskt.north) -- ++(0,0.68) -| (vec.south);
     \draw[darr] (dyna.north) -- ++(0,0.68) -| (ppo.south);
@@ -484,7 +483,7 @@ Dyna (Sutton, 1991; Sutton \& Barto, 2018) con \textit{rollouts} cortos (Janner 
     \mathrm{LG} = \frac{\bar{\theta}_{\text{post}} - \bar{\theta}_{\text{pre}}}{1 - \bar{\theta}_{\text{pre}}}.
     \label{eq:lg}
   \end{equation}
-  \item \textbf{Variables de acoplamiento ZPD:} $\mathrm{zpd\_hit} = \mathbf{1}\!\big[|\theta_k - b_a| < 0.5\big]$ y $\mathrm{abs\_gap} = |\theta_k - b_a|$ evaluadas antes de ejecutar la acción candidata.
+  \item \textbf{Variables de acoplamiento ZPD:} $\mathrm{zpd\_hit} = \mathbf{1}\!\big[|\theta_k - b_{\text{adj}}| < 0.5\big]$ y $\mathrm{abs\_gap} = |\theta_k - b_{\text{adj}}|$ evaluadas antes de ejecutar la acción candidata.
   \item \textbf{Referencia de oráculo ZPD:} heurística que conoce $\theta^*$ verdadero del simulador y selecciona la acción que maximiza el indicador esperado de ZPD ($\mathrm{LG} = +0.0411$).
 \end{itemize}
 
@@ -538,6 +537,30 @@ El umbral original $\mathrm{LG} \ge 0.50$ se retira formalmente: el propio simul
   \end{tabularx}
 \end{table}
 
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+    node distance=0.18cm,
+    pstep/.style={draw=#1, line width=0.9pt, fill=#1!10, rounded corners=3pt, text width=2.28cm, minimum height=1.36cm, align=center, font=\scriptsize},
+    parr/.style={-{Stealth[length=1.8mm,width=1.4mm]}, line width=0.9pt, color=InkDark}
+  ]
+    \node[pstep=ElectricBlue] (p1) {\textbf{\color{ElectricBlue}1. Simulador}\\IRT-3PL ($T=50$)\\\code{seed = 2026}};
+    \node[pstep=VividTeal, right=of p1] (p2) {\textbf{\color{VividTeal}2. Partición}\\GroupKFold ($k=5$)\\sin traslape (\code{L1})};
+    \node[pstep=AmberGold, right=of p2] (p3) {\textbf{\color{AmberGold}3. Atributos}\\ZPD causal + \textit{scaler}\\solo en \textit{train} (\code{L2--L4})};
+    \node[pstep=VividMagenta, right=of p3] (p4) {\textbf{\color{VividMagenta}4. Depuración}\\$\Delta\mathrm{AUC}$, $\mathrm{SHAP}$, $\mathrm{VIF}$\\$17 \rightarrow 7$ (\code{D2})};
+    \node[pstep=UNIGranate, right=of p4] (p5) {\textbf{\color{UNIGranate}5. Evaluación}\\PPO congelado (\code{L5})\\$5\text{ folds} \times 2\text{ sem.}$};
+    \node[pstep=RoyalViolet, right=of p5] (p6) {\textbf{\color{RoyalViolet}6. Inferencia}\\Bootstrap $10\,\text{k}$ + Holm\\JSON + SHA-256};
+
+    \draw[parr] (p1) -- (p2);
+    \draw[parr] (p2) -- (p3);
+    \draw[parr] (p3) -- (p4);
+    \draw[parr] (p4) -- (p5);
+    \draw[parr] (p5) -- (p6);
+  \end{tikzpicture}
+  \caption{Flujo metodológico reproducible y controles automáticos de no-fuga (\code{L1}--\code{L5}) ejecutados al corte.}
+  \label{fig:pipeline}
+\end{figure}
+
 % --- CAPÍTULO V ---
 \clearpage
 \chapsection{Capítulo V. Administración del plan}
@@ -583,7 +606,7 @@ Sin desembolso monetario directo: se emplea software libre (Python, NumPy, sciki
 \begin{itemize}
   \item \textbf{7.1 Preguntas experimentales:} \textbf{E1:} ¿Las variables ZPD incrementan $\mathrm{LG}$ frente al vector crudo? \textbf{E2:} ¿Aporta el historial temporal? \textbf{E3:} ¿Mejora la ganancia al depurar variables muertas y colineales? \textbf{E4:} ¿Cómo responde la ventaja cuando $\theta$ se estima con ruido (Elo en línea)?
   \item \textbf{7.2 Particiones:} \code{GroupKFold} con $k=5$ \textit{folds} por estudiante ($\code{fold\_seed}=2026$) y $2$ semillas de entrenamiento ($\{0,1\}$) por \textit{fold}.
-  \item \textbf{7.3 Métricas y estadística:} métrica primaria $\mathrm{LG}$ (ec.~\ref{eq:lg}) en alumnos de validación. Comparación pareada frente a \code{FS0\_raw13}: diferencia media $\bar{d}$ con IC\,95\,\% bootstrap percentil ($B=10\,000$), prueba exacta de permutación de signos (mínimo alcanzable $2/2^{10} = 2/1024 \approx 0.00195$), corrección de Holm y $d_z = \bar{d}/s_d$. \textbf{Limitación declarada:} las dos semillas dentro de un mismo \textit{fold} comparten partición de evaluación, por lo que los $p$-valores son aproximados.
+  \item \textbf{7.3 Métricas y estadística:} métrica primaria $\mathrm{LG}$ (ec.~\ref{eq:lg}) en alumnos de validación. Comparación pareada frente a \code{FS0\_raw13}: diferencia media $\bar{d}$ con IC\,95\,\% bootstrap percentil ($B=10\,000$), prueba exacta de permutación de signos (mínimo alcanzable $\tfrac{2}{2^{10}} = \tfrac{2}{1024} \approx 0.00195$), corrección de Holm y $d_z = \bar{d}/s_d$. \textbf{Limitación declarada y protocolo confirmatorio:} las dos semillas dentro de un mismo \textit{fold} comparten los mismos $20$ estudiantes de validación, por lo que las $10$ corridas constituyen $5$ bloques independientes y los $p$-valores son aproximados. En la fase confirmatoria (Sem. 13--14), las semillas se promediarán por \textit{fold} o por alumno sobre una partición virgen ($N \ge 100$ nuevos) nunca usada en la selección de \code{D2}.
 \end{itemize}
 
 \begin{table}[H]
@@ -798,7 +821,7 @@ Las cifras de ablación \code{B0}--\code{B5} y de optimización de hiperparámet
 \begin{table}[H]
   \centering
   \caption{Ablaciones controladas sobre el vector de estado--acción.}
-  \begin{tabularx}{\textwidth}{p{5.1cm} p{4.9cm} X}
+  \begin{tabularx}{\textwidth}{p{5.1cm} >{\raggedright\arraybackslash}p{4.9cm} X}
     \toprule
     \rowcolor{AmberGold} \textbf{\color{white}Cambio evaluado} & \textbf{\color{white}Resultado pareado} & \textbf{\color{white}Lectura técnica} \\
     \midrule
@@ -809,7 +832,7 @@ Las cifras de ablación \code{B0}--\code{B5} y de optimización de hiperparámet
   \end{tabularx}
 \end{table}
 
-En el modelo supervisado de transición de aprendizaje (\code{sprint2\_diagnostics.json}, $k=5$ \textit{folds}, $\mathrm{ROC\text{-}AUC} = 0.9479 \pm 0.0049$, $\text{Brier} = 0.0703$, $\text{ECE} = 0.0576$ frente a $\mathrm{AUC} = 0.4974 \pm 0.0178$ en \code{FS0\_raw13}; distinto del contraste de señales base en \code{summary.json} con $\code{auc\_raw} = 0.9253$ y $\code{auc\_sigmoid} = 0.6395$), \code{zpd\_hit} concentra la importancia por permutación ($\Delta\mathrm{AUC} = +0.0959$), seguida de \code{abs\_gap} ($+0.0140$) y \code{theta\_3} ($+0.0047$); las cuatro restantes oscilan cerca de cero o negativas. Por magnitud media de Shapley ($|\mathrm{SHAP}|$), \code{zpd\_hit} lidera ($0.0677$) y \code{abs\_gap} se ubica cuarta ($0.0127$). La multicolinealidad del vector depurado de 7 variables permanece controlada con $\mathrm{VIF}_{\max} = 2.125$ (\code{abs\_gap}).
+En el modelo supervisado de transición de aprendizaje (\code{sprint2\_diagnostics.json}, $k=5$, $\mathrm{ROC\text{-}AUC} = 0.9479 \pm 0.0049$, $\text{Brier} = 0.0703$, $\text{ECE} = 0.0576$ frente a $\mathrm{AUC} = 0.4974 \pm 0.0178$ en \code{FS0\_raw13}; distinto del contraste base en \code{summary.json} con $\code{auc\_raw} = 0.9253$ y $\code{auc\_sigmoid} = 0.6395$), \code{zpd\_hit} concentra la importancia por permutación ($\Delta\mathrm{AUC} = +0.0959$), seguida de \code{abs\_gap} ($+0.0140$) y \code{theta\_3} ($+0.0047$); las cuatro restantes oscilan cerca de cero o negativas. Por magnitud media de Shapley ($|\mathrm{SHAP}|$), \code{zpd\_hit} lidera ($0.0677$) y \code{abs\_gap} se ubica cuarta ($0.0127$). La multicolinealidad del vector depurado de 7 variables permanece controlada con $\mathrm{VIF}_{\max} = 2.125$ (\code{abs\_gap}).
 
 % --- FIGURA 4: IMPORTANCIA (3 PANELES GROUPPLOTS VECTORIAL) ---
 \begin{figure}[H]
@@ -911,7 +934,7 @@ En el modelo supervisado de transición de aprendizaje (\code{sprint2\_diagnosti
 \begin{itemize}
   \item \textbf{Variabilidad entre corridas:} las 10 corridas de \code{D2\_clean5\_zpd2} abarcan de $-0.0029$ a $+0.0496$; una corrida (\textit{fold} 0, semilla 0) resulta ligeramente negativa ($-0.0029$).
   \item \textbf{Habilidad estimada con ruido (Elo en línea, $k=0.1$):} al reemplazar $\theta^*$ verdadero por $\hat{\theta}$ estimado con Elo sobre 5 \textit{folds} (\code{runs\_elo.json}), las medias bajan a $\code{FS0\_elo} = -0.0101 \pm 0.0116$, $\code{FS1\_elo} = -0.0006 \pm 0.0235$ y $\code{D2\_elo} = +0.0009 \pm 0.0203$; la ventaja \code{FS1} vs. \code{FS0} cae a $+0.0095$ ($4/5$ \textit{folds}, $p = 0.25$): resultado \textbf{no concluyente}. La ventaja principal depende hoy de observar $\theta^*$ verdadero.
-  \item \textbf{Costo computacional:} el sobrecosto de latencia en inferencia al añadir las características ZPD en \code{FS1\_zpd4} es $+0.11\text{ ms}$ por decisión (\code{summary.json}).
+  \item \textbf{Costo computacional:} el sobrecosto de latencia en inferencia al añadir las variables ZPD en \code{FS1\_zpd4} es $+0.11\text{ ms}$ por decisión (\code{summary.json}).
 \end{itemize}
 
 \subsection{Interpretación y amenazas a la validez}
@@ -926,7 +949,7 @@ En una sesión corta de $T=50$ pasos domina el olvido multiplicativo (ec.~\ref{e
     \midrule
     Constructo & \code{zpd\_hit} reproduce la regla exacta con la que el simulador genera aprendizaje (ec.~\ref{eq:learn}); su poder predictivo es esperable por construcción. \\
     \rowcolor{RowTintBlue} Interna & El agente observa $\theta^*$ verdadero; con estimadores ruidosos de $\hat{\theta}$ la ventaja disminuye (ver prueba Elo). \\
-    Estadística & $n = 10$ corridas con dependencia entre las dos semillas de un mismo \textit{fold}. \\
+    Estadística & $n = 10$ corridas sobre $k=5$ \textit{folds} (dependencia intrafold de semillas y selección exploratoria sobre los mismos \textit{folds}); se mitigará en Sem. 13--14 con partición virgen. \\
     \rowcolor{RowTintBlue} Externa & Estudiantes sintéticos e ítems muestreados (\code{bank\_seed=2026}); nada se generaliza a escolares reales. \\
     \bottomrule
   \end{tabularx}
@@ -1063,8 +1086,8 @@ En una sesión corta de $T=50$ pasos domina el olvido multiplicativo (ec.~\ref{e
     \toprule
     \rowcolor{VividTeal} \textbf{\color{white}Variable} & \textbf{\color{white}Definición} & \textbf{\color{white}Decisión} \\
     \midrule
-    \code{zpd\_hit} & $\mathbf{1}\!\big[|\theta_k - b_a| < 0.5\big]$ & \textbf{\color{EmeraldGreen}Retenida} \\
-    \rowcolor{RowTintTeal} \code{abs\_gap} & $|\theta_k - b_a|$ & \textbf{\color{EmeraldGreen}Retenida} \\
+    \code{zpd\_hit} & $\mathbf{1}\!\big[|\theta_k - b_{\text{adj}}| < 0.5\big]$ & \textbf{\color{EmeraldGreen}Retenida} \\
+    \rowcolor{RowTintTeal} \code{abs\_gap} & $|\theta_k - b_{\text{adj}}|$ & \textbf{\color{EmeraldGreen}Retenida} \\
     \code{theta\_1}, \code{theta\_2}, \code{theta\_3} & Habilidad verdadera por competencia & \textbf{\color{EmeraldGreen}Retenidas} \\
     \rowcolor{RowTintTeal} \code{b\_prev\_raw}, \code{u\_progress} & Dificultad previa y avance $t/50$ & \textbf{\color{EmeraldGreen}Retenidas} {\scriptsize(sin ablación propia)} \\
     \code{zpd\_prox}, \code{signed\_gap} & Proximidad gaussiana y brecha con signo & \color{AmberGold}Descartadas por colinealidad \\
