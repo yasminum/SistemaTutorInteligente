@@ -1,162 +1,153 @@
-# Auditoría de Datos, Selección de Variables (VIF / SHAP / Permutación), Calibración y Experimento A/B
+# Avance del Sprint hasta Optimización de Hiperparámetros (Semana 8)
 
-**Sistema de Tutoría Inteligente Adaptativa (DRL) · Grupo 2 · Maestría en IA · UNI**  
-*Proyecto de Investigación 2 — Prof. Glen Rodríguez · Rama `feat/variable-importance-and-consistency-matrix` (heredada de `data-centric-audit-and-pruning`)*
+**Sistema de Tutoría Inteligente Adaptativa (DRL) para Comprensión Lectora · Grupo 2 · Maestría en IA · UNI**  
+*Proyecto de Investigación 2 — Prof. Dr. Glen Rodríguez · Rama `feat/hyperparameter-optimization` (heredada de `feat/variable-importance-and-consistency-matrix`)*
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/yasminum/SistemaTutorInteligente/blob/feat/variable-importance-and-consistency-matrix/notebooks/03_Importancia_Variables_y_Matriz_Consistencia.ipynb)
-![Leakage](https://img.shields.io/badge/pruebas_de_fuga-5%2F5_PASS-blue)
-![VIF](https://img.shields.io/badge/VIF_m%C3%A1x-2.12_(vs_4.04)-success)
-![Brier](https://img.shields.io/badge/Brier_Score-0.070_(vs_0.166)-informational)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/yasminum/SistemaTutorInteligente/blob/feat/hyperparameter-optimization/avance_sprint_optimizacion_hiperparametros.ipynb)
+![Congruencia](https://img.shields.io/badge/congruencia_repo-6%2F6_PASS-success)
+![HPO](https://img.shields.io/badge/HPO_Optuna_TPE-39_trials_(17.9%25_ahorro_Pruning)-blue)
+![LG_sim](https://img.shields.io/badge/LG__sim_Ganador-0.5329_%C2%B1_0.0052_(p%3C0.0001)-brightgreen)
 
-> 📓 **Notebook principal Semana 7 (Importancia de Variables + Matriz de Consistencia):** [`notebooks/03_Importancia_Variables_y_Matriz_Consistencia.ipynb`](notebooks/03_Importancia_Variables_y_Matriz_Consistencia.ipynb)  
-> 📄 **Documento dedicado de Matriz de Consistencia:** [`docs/matriz_consistencia.md`](docs/matriz_consistencia.md)
+> 📓 **Notebook principal del Sprint (Ejecutado de punta a punta hasta HPO):** [`avance_sprint_optimizacion_hiperparametros.ipynb`](avance_sprint_optimizacion_hiperparametros.ipynb) · Copia en [`notebooks/04_Avance_Sprint_Optimizacion_Hiperparametros.ipynb`](notebooks/04_Avance_Sprint_Optimizacion_Hiperparametros.ipynb)  
+> ⚙️ **Artefactos de Optimización de Hiperparámetros:** [`config/search.yaml`](config/search.yaml) · [`logs/hpo_runs.csv`](logs/hpo_runs.csv) · [`data/results/hpo_results.json`](data/results/hpo_results.json) · [`data/results/ablation_summary.json`](data/results/ablation_summary.json)  
+> 📄 **Matriz de Consistencia corregida:** [`docs/matriz_consistencia.md`](docs/matriz_consistencia.md)
 
 ---
 
-## 0. Matriz de Consistencia Metodológica y Operacional
+## 0. Matriz de Consistencia Metodológica y Operacional (Corregida)
 
-| Problema | Objetivos | Hipótesis | Variables (Independientes y Dependientes) | Indicadores y Evidencia Experimental |
+En atención a la revisión metodológica de la Semana 7, en los tres objetivos específicos las **Variables Independientes** son únicamente las **variables reales del conjunto de datos seleccionadas por importancia** (`zpd_hit`, `abs_gap`, `theta_1..3`, `b_prev_raw`, `u_progress`), la **Variable Dependiente** es siempre el **aprendizaje en comprensión lectora**, y métricas como `ROC-AUC`, `Brier Score`, `VIF` o episodios se reportan exclusivamente en la columna de **Indicadores**:
+
+<table>
+<thead>
+<tr>
+<th>Problema</th>
+<th>Objetivos</th>
+<th>Hipótesis</th>
+<th>Variables (Independientes y Dependientes)</th>
+<th>Indicadores y Evidencia Experimental</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><b>Problema General:</b><br>¿En qué medida un Sistema de Tutoría Inteligente Adaptativa basado en <i>Deep Reinforcement Learning</i> (DRL), alimentado con las variables de acoplamiento habilidad–dificultad y optimizado en sus hiperparámetros, mejora la ganancia de aprendizaje en comprensión lectora frente a una secuenciación sin variables de acoplamiento?</td>
+<td><b>Objetivo General:</b><br>Determinar el efecto del Sistema de Tutoría Inteligente Adaptativa basado en DRL (`Dyna-PPO`), alimentado con las variables seleccionadas de acoplamiento habilidad–dificultad y con hiperparámetros optimizados, sobre la ganancia de aprendizaje en comprensión lectora.</td>
+<td><b>Hipótesis General:</b><br>El Sistema de Tutoría Inteligente basado en DRL alimentado con las variables seleccionadas de acoplamiento habilidad–dificultad y con hiperparámetros optimizados incrementa significativamente la ganancia de aprendizaje en comprensión lectora respecto a la línea base (p &lt; 0.05).</td>
+<td><b>Variable Independiente General:</b><br>• Conjunto depurado de 7 variables de entrada del tutor adaptativo: 2 variables de acoplamiento pregunta–alumno (<code>zpd_hit</code>, <code>abs_gap</code>) y 5 variables de estado del estudiante (<code>theta_1</code>, <code>theta_2</code>, <code>theta_3</code>, <code>u_progress</code>, <code>b_prev_raw</code>).<br><br><b>Variable Dependiente General:</b><br>• Aprendizaje en comprensión lectora del estudiante (competencias literal, inferencial y crítica).</td>
+<td>• <b>Ganancia de aprendizaje normalizada de Hake (LG<sub>sim</sub> en 10 semillas):</b><br><code>B4 (PPO)</code>: 0.2393 ± 0.00714<br><code>B5 (Dyna-PPO base)</code>: 0.5043 ± 0.00539<br><b><code>B5 + HPO (Ganador Trial #39)</code>: 0.5329 ± 0.00521</b> (+122.7% sobre B4 y +5.7% sobre B5; p &lt; 0.0001).<br>• <b>Ganancia en validación cruzada 5-Fold (alumnos no vistos):</b> sube de +0.0203 ± 0.0167 a <b>+0.0312 ± 0.0148</b>.<br>• <b>Tasa de eventos de aprendizaje por paso:</b> 0.351 vs. 0.273 de la línea base.</td>
+</tr>
+<tr>
+<td><b>Problema Específico 1:</b><br>¿En qué medida las variables de acoplamiento entre la habilidad del estudiante y la dificultad del texto (<code>zpd_hit</code> y <code>abs_gap</code>) explican que el estudiante logre aprender al responder un texto de comprensión lectora?</td>
+<td><b>Objetivo Específico 1:</b><br>Evaluar el aporte de las variables de acoplamiento habilidad–dificultad (<code>zpd_hit</code> y <code>abs_gap</code>) sobre la ocurrencia de aprendizaje en cada texto asignado al estudiante.</td>
+<td><b>Hipótesis Específica 1:</b><br>Las variables de acoplamiento <code>zpd_hit</code> y <code>abs_gap</code> constituyen los predictores de mayor aporte sobre la ocurrencia de aprendizaje del estudiante en todos los pliegues de validación, sin presentar multicolinealidad.</td>
+<td><b>var(s) indep(s):</b><br>• <b><code>zpd_hit</code></b>: proporción de preguntas del texto dentro de la ventana de aprendizaje (|θ<sub>k</sub> − b<sub>adj</sub>| &lt; 0.5).<br>• <b><code>abs_gap</code></b>: distancia absoluta entre la habilidad del alumno y la dificultad del texto (|θ<sub>k</sub> − b<sub>adj</sub>|).<br><br><b>var depend:</b><br>• Ocurrencia de transición de aprendizaje lector en el paso t (incremento de competencia Δθ<sub>k</sub> &gt; 0).</td>
+<td>• <b>Importancia por permutación (ΔAUC en 5 folds):</b> <code>zpd_hit</code> puesto <b>#1</b> (0.0960) y <code>abs_gap</code> puesto <b>#2</b> (0.0142) en los 5/5 folds.<br>• <b>Impacto medio |SHAP|:</b> <code>zpd_hit</code> = 0.0677 (#1), <code>abs_gap</code> = 0.0127 (#2).<br>• <b>Factor de inflación de varianza (VIF):</b> 2.07 y 2.12 (&lt; 2.5).<br>• <b>Discriminación y calibración:</b> ROC-AUC = 0.9479 y Brier Score = 0.0703 ± 0.0028.</td>
+</tr>
+<tr>
+<td><b>Problema Específico 2:</b><br>¿Cómo influyen los niveles de habilidad lectora en las competencias literal, inferencial y crítica (<code>theta_1</code>, <code>theta_2</code>, <code>theta_3</code>), depurados del ruido de medición (<code>sigma_1..3</code>), sobre el progreso de comprensión lectora durante la sesión?</td>
+<td><b>Objetivo Específico 2:</b><br>Analizar el efecto de las variables de estado de habilidad por competencia (<code>theta_1</code>, <code>theta_2</code>, <code>theta_3</code>), libres de las variables de ruido (<code>sigma_1..3</code>), sobre la evolución de la comprensión lectora en la sesión.</td>
+<td><b>Hipótesis Específica 2:</b><br>La representación del estado mediante las tres competencias lectoras (<code>theta_1</code>, <code>theta_2</code>, <code>theta_3</code>) sin canales de ruido mejora la ganancia de comprensión lectora y requiere menos episodios de interacción que el estado crudo.</td>
+<td><b>var(s) indep(s):</b><br>• <b><code>theta_1</code></b>: nivel de competencia lectora literal.<br>• <b><code>theta_2</code></b>: nivel de competencia lectora inferencial.<br>• <b><code>theta_3</code></b>: nivel de competencia lectora crítica.<br><br><b>var depend:</b><br>• Evolución del nivel de comprensión lectora del estudiante a lo largo de la sesión.</td>
+<td>• <b>Ganancia media por competencia (Δθ<sub>k</sub>):</b> incremento positivo en las 3 competencias (+0.0203 vs. −0.0095 con ruido).<br>• <b>Importancia |SHAP| de estado:</b> <code>theta_1..3</code> aportan señal real (VIF ∈ [1.01, 1.03]), mientras que <code>sigma_1..3</code> tenía ΔAUC ≈ 0.000.<br>• <b>Episodios requeridos para alcanzar la línea base:</b> 275 episodios vs. 750 (−63.3%).</td>
+</tr>
+<tr>
+<td><b>Problema Específico 3:</b><br>¿De qué manera las variables de contexto de progresión de la lectura (<code>b_prev_raw</code> y <code>u_progress</code>) y el ajuste de hiperparámetros de planificación (`eps_wm`, `lr`, `H`) regulan la continuidad del aprendizaje y evitan rachas de frustración?</td>
+<td><b>Objetivo Específico 3:</b><br>Determinar el impacto de las variables de progresión de la sesión (<code>b_prev_raw</code> y <code>u_progress</code>) y de la calibración de hiperparámetros (`eps_wm`, `lr`, `H`) sobre la continuidad del aprendizaje y el control de rachas de error del estudiante.</td>
+<td><b>Hipótesis Específica 3:</b><br>La inclusión del contexto de progresión (<code>b_prev_raw</code> y <code>u_progress</code>) junto con un umbral estricto de fidelidad del modelo de mundo (<code>eps_wm = 0.05</code>, <code>H = 5</code>, <code>lr = 1e-4</code>) maximiza la ganancia de aprendizaje manteniendo las rachas de frustración por debajo de 0.02 por paso.</td>
+<td><b>var(s) indep(s):</b><br>• <b><code>b_prev_raw</code></b>: dificultad del texto respondido en el paso anterior (t−1).<br>• <b><code>u_progress</code></b>: proporción de avance de la sesión de lectura (t/50).<br><br><b>var depend:</b><br>• Continuidad del aprendizaje y frecuencia de rachas de error (frustración) en la sesión.</td>
+<td>• <b>Importancia de hiperparámetros (fANOVA):</b> <code>eps_wm</code> explica el <b>38.89%</b> de la varianza de desempeño, <code>lr</code> el <b>18.26%</b> y <code>H</code> el <b>17.41%</b>.<br>• <b>Tasa de activación del escudo por frustración (racha ≥ 4 errores):</b> 0.015 por paso (≤ 0.02).<br>• <b>Impacto medio |SHAP|:</b> <code>u_progress</code> = 0.0089, <code>b_prev_raw</code> = 0.0065 (VIF = 1.00).</td>
+</tr>
+</tbody>
+</table>
+
+---
+
+## 1. Mapa del Sprint — Trazabilidad de las 5 Etapas en GitHub
+
+![Cronograma del Sprint](figures/01_cronograma_sprint.png)
+
+| # | Etapa del Sprint | Rama en GitHub | Fecha | Entregable y Resultado Clave |
 |---|---|---|---|---|
-| **Problema General:**<br>¿En qué medida un Sistema de Tutoría Inteligente Adaptativa basado en DRL, alimentado con una representación depurada de acoplamiento habilidad–dificultad, mejora la ganancia de aprendizaje en comprensión lectora frente a políticas de estado crudo sin depurar? | **Objetivo General (OG):**<br>Diseñar, implementar y validar un Sistema de Tutoría Inteligente Adaptativa basado en DRL (PPO / Dyna-PPO), integrando selección de variables sin colinealidad y calibración probabilística, para optimizar la secuencia de textos y maximizar la comprensión lectora. | **Hipótesis General (HG):**<br>El Sistema de Tutoría Inteligente basado en DRL con representación depurada (`Var2: clean5 + 2 vars ZPD`) incrementa significativamente la ganancia de aprendizaje normalizada ($LG_{\text{sim}}$) en estudiantes no vistos respecto al *Baseline* de estado crudo ($p < 0.05$). | **Variable Independiente General (VI):**<br>Representación de datos y política de secuenciación adaptativa DRL (`Baseline FS0_raw13` vs. `Var1 FS1_zpd4` vs. `Var2 D2_clean5_zpd2`).<br><br>**Variable Dependiente General (VD):**<br>Ganancia de aprendizaje en comprensión lectora ($\theta_1$ literal, $\theta_2$ inferencial, $\theta_3$ crítica). | • **Ganancia de Aprendizaje Normalizada de Hake ($LG_{\text{sim}}$):**<br>`Baseline`: $-0.0095 \pm 0.0174$<br>`Var1 (4 vars)`: $+0.0105 \pm 0.0150$<br>**`Var2 (clean5 + 2 vars)`**: **$+0.0203 \pm 0.0167$**<br>• **Mejora en $LG$ (`Var2 − Baseline`):** $+0.0298$, IC95 $[+0.0225, +0.0372]$, $p_{\text{Holm}}=0.008$, $d_z=2.40$ ($10/10$ pares y $5/5$ folds).<br>• **Eventos de aprendizaje/paso:** $0.334$ vs. $0.273$. |
-| **Problema Específico 1 (Importancia de Variables, Colinealidad y Calibración):**<br>¿Cuáles son las variables de estado y de interacción alumno–texto que explican la transición de aprendizaje lector sin colinealidad ni sesgo por ruido, y qué discriminación y calibración alcanzan? | **Objetivo Específico 1 (OE1):**<br>Identificar y justificar el subconjunto mínimo de variables mediante importancia en árboles (`Impurity Gain`), importancia por permutación en validación, valores `SHAP`, `VIF` y curvas de calibración (`Brier Score`). | **Hipótesis Específica 1 (HE1):**<br>La poda de las 8 columnas sin señal del estado junto con **2 variables de acoplamiento ZPD (`zpd_hit` y `abs_gap`)** mantiene $\text{VIF} < 2.5$, repite el Top-2 en el $100\%$ de los folds, alcanza $\text{ROC-AUC} \ge 0.85$ a nivel de ítem y reduce el `Brier Score` por debajo de $0.10$. | **var(s) indep(s):**<br>1. **`zpd_hit`**: fracción de preguntas del texto en ventana de aprendizaje ($\lvert\theta_k - b_{adj}\rvert < 0.5$).<br>2. **`abs_gap`**: diferencia absoluta de nivel ($\lvert\theta_k - b_{adj}\rvert$).<br>3. **`clean5`**: $[\theta_1, \theta_2, \theta_3, t/50, b_{t-1}]$.<br><br>**var depend:**<br>Probabilidad calibrada de transición de aprendizaje $P(\Delta\theta_k > 0 \mid s_t, a_t)$. | • **Importancia por Permutación (5 folds):** `zpd_hit` puesto **#1** ($0.0960$) y `abs_gap` puesto **#2** ($0.0142$) en los **$5/5$ folds**.<br>• **Impacto medio `\|SHAP\|`:** `zpd_hit` $= 0.0677$, `abs_gap` $= 0.0127$.<br>• **Colinealidad (`VIF`):** máx. **$2.12$** (baja desde $4.04$).<br>• **`ROC-AUC`:** **$0.9261$** (curva de aprendizaje, GBDT) y **$0.9479$** (modelo calibrado a nivel pregunta) vs. $0.4974$ del Baseline.<br>• **`Brier Score`:** **$0.0703 \pm 0.0028$** ($-57.5\%$ vs. Baseline $0.1656$); `ECE` texto $= 0.053$. |
-| **Problema Específico 2 (Eficiencia Muestral y Seguridad CMDP):**<br>¿En qué medida la eliminación del ruido amplificado por el escalador y la reducción a 2 variables ZPD aceleran la convergencia del agente PPO sin incrementar la frustración del alumno? | **Objetivo Específico 2 (OE2):**<br>Evaluar mediante curvas de aprendizaje (Train vs. Validación) el impacto de la depuración de datos sobre la velocidad de convergencia en episodios y sobre la tasa de activación del escudo CMDP. | **Hipótesis Específica 2 (HE2):**<br>La variante depurada (`Var2`) corrige el alto sesgo (*underfitting*) del `Baseline`, alcanza el desempeño final del `Baseline` en $\le 500$ episodios y mantiene la tasa del escudo en $\le 0.02$ por paso. | **var(s) indep(s):**<br>Poda de las 8 columnas sin señal del estado (eliminando la amplificación de $34.6\times$ del ruido $\sigma_{1..3}$ en `StandardScaler`).<br><br>**var depend:**<br>Episodios hasta convergencia y tasa de activación del escudo CMDP. | • **Episodios hasta alcanzar el $LG$ final del Baseline (mediana):** **$275$ episodios** en `Var2` (cumple $\le 500$) vs. $350$ en `Var1` y $750$ en `Baseline` (**$-63.3\%$ episodios**).<br>• **Tasa de activación del escudo CMDP (racha $\ge 4$ errores):** **$0.017$ por paso** (sin incremento respecto al Baseline). |
-| **Problema Específico 3 (Complejidad Computacional y Robustez sin Oráculo):**<br>¿Cuál es el efecto de la poda de variables sobre el costo de inferencia y sobre la ganancia cuando la habilidad $\hat{\theta}$ se estima en línea? | **Objetivo Específico 3 (OE3):**<br>Cuantificar la reducción de parámetros, la latencia por decisión y la estabilidad del $LG$ al sustituir $\theta^*$ por un estimador Elo observable ($\hat{\theta}_k$). | **Hipótesis Específica 3 (HE3):**<br>El modelo depurado (`Var2`) reduce en $>50\%$ los parámetros entrenables, mantiene latencia $< 1\text{ ms}$ y conserva ganancia superior al `Baseline` con habilidad estimada $\hat{\theta}$. | **var(s) indep(s):**<br>Dimensión $(d_s=5, d_a=2)$ y modo de observación ($\theta^*$ exacta vs. $\hat{\theta}$ Elo online).<br><br>**var depend:**<br>Número de parámetros, latencia (ms) y $LG_{\text{sim}}$ con $\hat{\theta}$. | • **Parámetros entrenables:** **$542$** en `Var2` vs. $1\,264$ en `Var1` (**$-57.1\%$**).<br>• **Latencia mediana:** **$0.118\text{ ms}$** ($-21.3\%$ vs. `Var1`).<br>• **Mejora en $LG$ con $\hat{\theta}$ Elo:** $+0.0110$ sobre Baseline ($4/5$ folds). |
+| **1** | **EDA (Análisis Exploratorio)** | `eda` | 10-oct-2026 | Caracterización de los 300 ítems IRT-3PL (`a`, `b`, `c`) y detección de desalineación entre $\theta \in [0,1]$ y $b \in [-3.11, +3.24]$ (63% fuera de rango). |
+| **2** | **Ingeniería de Características** | `feature_engineering` | 17-oct-2026 | Variables de acoplamiento en escala nativa ($\text{AUC}=0.925$ vs. $0.640$ del escalado sigmoidal directo). |
+| **3** | **Auditoría y Poda Data-Centric** | `data-centric-audit-and-pruning` | 24-oct-2026 | Poda de 5 columnas constantes y 3 canales de ruido $\sigma_{1..3}$ (amplificados $34.6\times$ por `StandardScaler` y con $16.4\%$ de impureza espuria en árboles). |
+| **4** | **Importancia de Variables y Matriz de Consistencia** | `feat/variable-importance-and-consistency-matrix` | 30-oct-2026 | Selección de `zpd_hit` (#1 en 5/5 folds) y `abs_gap` (#2 en 5/5 folds), $\text{VIF}_{\max}=2.12$, $\text{Brier}=0.0703$ y Matriz de Consistencia corregida. |
+| **5** | **Optimización de Hiperparámetros (HPO)** | `feat/hyperparameter-optimization` | **06-nov-2026 (Hoy)** | **39 trials ejecutados (`Random Search LHS` + `Optuna TPE` con `MedianPruner`, 17.9% ahorro de cómputo)**: `LG_sim` sube de **`0.5043` a `0.5329`** ($p < 0.0001$) y en validación 5-Fold de **`+0.0203` a `+0.0312`**. |
 
 ---
 
-## Diagnóstico de ingeniería
+## 2. Etapa 5: Optimización de Hiperparámetros (`Maestria2_IA07`)
 
-El vector de observación crudo $x_t \in \mathbb{R}^{13}$ de `environment.py` presenta dos defectos de acondicionamiento de señal que degradan cualquier política lineal:
-1. **Amplificación de ruido blanco ($34.6\times$) y canales muertos:** cinco canales tienen varianza nula ($\text{SD}=0.000$) y tres canales ($\sigma_{1..3} \sim U(0.05, 0.15)$, $\text{SD}=0.0289$) son ruido blanco independiente del alumno. Al estandarizar con `StandardScaler`, las tres columnas de ruido se multiplican por $1/0.0289 = 34.6\times$ hasta varianza unitaria, inyectando ruido en $270$ pesos de la política. En árboles (`RandomForest`, 300 árboles), estos tres canales absorben **$16.4\%$ de ganancia por impureza espuria**, mientras que su `Permutation Importance` en validación es **$\approx 0.000$**.
-2. **No-separabilidad lineal del evento de aprendizaje:** la transición $\Delta\theta_k > 0$ ocurre solo cuando $|\theta_k - b_{adj}| < 0.5$ y hay acierto, una función par de la diferencia $(\theta_k - b_{adj})$ que un hiperplano $W x_t$ sobre coordenadas separadas no puede resolver ($\text{AUC}=0.497$, $\text{Brier}=0.1656$, $\text{ECE}=0.258$).
+### 2.1 Espacio de Búsqueda Enfocado (`config/search.yaml`) y Estrategia en 2 Fases
 
-Al podar las **8 columnas sin señal del estado** ($\mathbb{R}^{13} \to \mathbb{R}^5$) y conservar **únicamente 2 variables de acoplamiento ZPD por acción** (`zpd_hit` y `abs_gap`, que ocupan los puestos `#1` y `#2` en `Permutation Importance` en los **5 de 5 folds**; en `SHAP`, `zpd_hit` es `#1` con un impacto 4 veces mayor que cualquier otra variable, reduciendo el $\text{VIF}$ máximo de $4.04$ a $2.12$ y los parámetros de la política de $1\,264$ a $542$), el *Learning Gain* en holdout sube de **$-0.0095 \pm 0.0174$** (`Baseline`) y **$+0.0105 \pm 0.0150$** (`Var1` con 4 variables ZPD sobre estado sucio) a **$+0.0203 \pm 0.0167$** (`Var2` adoptada: $\Delta LG = +0.0298$, IC95 $[+0.0225, +0.0372]$, $p_{\text{Holm}}=0.008$, $10/10$ pares ganados y signo positivo en los $5/5$ folds).
+Siguiendo la metodología de la Semana 8 (*Búsqueda de Hiperparámetros*), acotamos la búsqueda a los **6 hiperparámetros críticos** de `Dyna-PPO` evitando explosión combinatoria:
 
----
+| Fase | Hiperparámetro | Símbolo / Clave en `config.py` | Tipo / Escala | Rango Explorado | Valor Base (`B5`) | Valor Ganador (`Trial #39`) | Importancia (`fANOVA`) |
+|---|---|---|---|---|:---:|:---:|:---:|
+| **Fase 1 (Dyna + Paso)** | Umbral MSE del World Model | `eps_wm` (`wm_mse_threshold`) | Continuo (escala log) | `{0.05, 0.10, 0.20}` | `0.10` | **`0.05`** | **38.89%** (#1) |
+| **Fase 1 (Dyna + Paso)** | Tasa de aprendizaje Actor-Crítico | `lr` | Continuo (escala log) | `{5e-5, 1e-4, 3e-4}` | `3e-4` | **`1e-4`** | **18.26%** (#2) |
+| **Fase 1 (Dyna + Paso)** | Horizonte de rollouts sintéticos | `H` (`dyna_horizon`) | Discreto entero | `{3, 5, 7}` | `5` | **`5`** | **17.41%** (#3) |
+| **Fase 2 (Estabilidad PPO)** | Recorte de razón PPO | `clip_eps` (`clip_epsilon`) | Continuo | `{0.10, 0.20, 0.30}` | `0.20` | **`0.20`** | **10.07%** (#4) |
+| **Fase 2 (Estabilidad PPO)** | Suavizado de ventaja GAE | `gae_lambda` | Continuo | `{0.90, 0.95}` | `0.95` | **`0.95`** | **9.69%** (#5) |
+| **Fase 2 (Estabilidad PPO)** | Factor de descuento temporal | `gamma` | Continuo (cerca de 1) | `{0.95, 0.99}` | `0.99` | **`0.99`** | **5.68%** (#6) |
 
-## 1. Síntesis del EDA sobre los Datos Crudos → Decisiones de Datos
+* **Calentamiento con Random Search (`Trials 1–12`):** 12 configuraciones muestreadas mediante *Latin Hypercube Sampling (LHS)* para cubrir uniformemente el espacio inicial sin sesgo.
+* **Explotación guiada con Optuna TPE (`Trials 13–39`):** 27 configuraciones guiadas por el estimador *Tree-structured Parzen Estimator (TPE)*, concentrando evaluaciones en la región de alta fidelidad del modelo de mundo (`eps_wm = 0.05`, `lr = 1e-4`, `H = 5`).
+* **Presupuesto y Parada Temprana (`MedianPruner`):** presupuesto máximo de `5 000` episodios por semilla (`10 semillas` por configuración). Si en el corte intermedio (`1 500` episodios, 30% del presupuesto) la ganancia parcial es inferior a la mediana histórica, el trial se poda automáticamente (**10 de 39 trials podados**, ahorrando **17.9%** del cómputo total).
 
-| Código | Hallazgo en los datos crudos (`01_EDA.ipynb` + auditoría de $x_t$) | Evidencia cuantitativa | Transformación sobre los datos |
-|---|---|---|---|
-| **P1. Desalineación de escalas ($\theta$ vs. $b$)** | $\theta_k \in [0, 1]$ ($\text{Beta}(2,2)$), mientras que $b_i \sim \mathcal{N}(0, 1)$ ($[-3.11, +3.24]$). | El **63.0 %** de los 300 ítems cae fuera de $[0, 1]$ ($47.3\%$ con $b<0$; $15.7\%$ con $b>1$). En nivel 0, el **58.4 %** de los ítems son triviales ($P>0.90$). | Variables de acoplamiento en la escala nativa del generador ($g = \theta_k - b_{adj}$): $-\lvert\theta - b_{adj}\rvert$ alcanza $\text{AUC}=0.925$ frente a $0.640$ del escalado sigmoidal directo $-\lvert\theta - \sigma(b)\rvert$. |
-| **P2. Canales constantes y ruido amplificado en $x_t \in \mathbb{R}^{13}$** | 5 entradas constantes (`u_acc`, `u_streak`, `tau_rt`, `tau_lag`, `E`) y 3 entradas de ruido uniforme $\sigma_{1..3} \sim U(0.05, 0.15)$. | $\text{SD}=0.000$ en 5 columnas; `StandardScaler` amplifica $\sigma_{1..3}$ en **$34.6\times$** ($\text{SD}=0.0289 \to 1.0$). | **Poda de estado (`clean5`)**: eliminar las 8 columnas sin señal y retener $[\theta_1, \theta_2, \theta_3, t/H, b_{t-1}] \in \mathbb{R}^5$. |
-| **P3. Colinealidad en candidatas ZPD y temporales** | En `FS1_zpd4`, `abs_gap`, `zpd_prox` y `zpd_hit` miden la misma distancia $|\theta_k - b_{adj}|$; en `FS2_hist6`, `last_lvl_0..2` suma 1. | $r(\text{zpd\_prox}, \text{zpd\_hit}) = 0.849$ ($\text{VIF}=4.04$); en `FS2_hist6`, $\text{VIF}=\infty$. | **Poda a 2 variables ZPD (`zpd2`)**: conservar solo `zpd_hit` y `abs_gap` ($\text{VIF}_{\max}=2.12$; estado $\text{VIF} \in [1.00, 1.03]$). |
-| **P4. Sobreajuste a un alumno por semilla y sesgo de $\theta_0$** | `train.py` repetía el mismo alumno $5\,000$ episodios y $\rho(\theta_{\text{pre}}, LG) = -0.95$. | Población efectiva original: 1 alumno/semilla. | Cohorte de 100 alumnos con `GroupKFold` (5 folds: 80 train / 20 test) y evaluación pareada. |
+### 2.2 Evolución de la Optimización (Métrica vs. Trial) y Validación Cruzada en 5 Folds
 
----
+![Evolución de Trials y Pruning](figures/03_evolucion_trials_y_pruning.png)
 
-## 2. Selección y Justificación de Features: VIF, Importancias, SHAP y Estabilidad en 5 Folds
+### 2.3 Importancia de Hiperparámetros y Tabla Top-10 de Configuraciones (Ganadora + 2 Respaldos)
 
-![Importancias, SHAP, VIF y Estabilidad](figures/fe/04_importancias_shap_vif_estabilidad.png)
+![Importancia de Hiperparámetros y Top-5](figures/04_importancia_hiperparametros_y_top5.png)
 
-### 2.1 Control de Colinealidad (VIF) y Poda de Variables
-
-| Variable | Rol | VIF en `FS1_zpd4` (4 vars) | VIF en `D2_clean5_zpd2` (2 vars) | `RF Gain` (media 5 folds) | `Permutation ΔAUC` (media 5 folds) | `Mean \|SHAP\|` (validación) | Ranking en `Fold 0..4` | Decisión |
-|---|---|:---:|:---:|:---:|:---:|:---:|:---:|---|
-| **`zpd_hit`** | Acción: $\overline{\mathbb{1}[\lvert\theta_k - b_{adj}\rvert < 0.5]}$ | 4.04 | **2.07** | 0.1713 | **0.0960** | **0.0677** | **#1, #1, #1, #1, #1** | **CONSERVAR (Var ZPD #1)** |
-| **`abs_gap`** | Acción: $\overline{\lvert\theta_k - b_{adj}\rvert}$ | 2.60 | **2.12** | 0.1072 | **0.0142** | **0.0127** | **#2, #2, #2, #2, #2** | **CONSERVAR (Var ZPD #2)** |
-| `zpd_prox` | Acción: $\overline{\exp(-g^2/2\sigma_F^2)}$ | 3.84 | — | 0.1388 | — (colineal) | — | — | **DESCARTAR** ($r=0.849$ con `zpd_hit`) |
-| `p_hat` | Acción: $\overline{P_{3PL}}$ | 1.42 | — | 0.0733 | 0.0007 | — | — | **DESCARTAR** ($\Delta\text{AUC}\approx 0$) |
-| `theta_1..3` | Estado: habilidades por KC | 1.01–1.03 | **1.01–1.03** | 0.053–0.068 | 0.001–0.005 | 0.004–0.015 | #3–#7 | **CONSERVAR (`clean5`)** |
-| `u_progress`, `b_prev_raw` | Estado: paso $t/H$ y $b_{t-1}$ | 1.00 | **1.00** | 0.039–0.051 | 0.001 | 0.007–0.009 | #3–#7 | **CONSERVAR (`clean5`)** |
-| `sigma_1..3` | Estado: ruido $U(0.05, 0.15)$ | 1.00 | — | **0.1640 (suma)** | **0.0001–0.0015** | — | Ruido | **PODAR** (amplificado $34.6\times$) |
-| `u_acc`, `u_streak`, `tau_1..2`, `E` | Estado: 5 constantes fijas | $\infty$ ($\text{SD}=0$) | — | 0.0000 | 0.0000 | — | Constante | **PODAR** (varianza cero) |
-
----
-
-## 3. Diagnósticos de Aprendizaje (Train vs. Validación) y Calibración (`Brier Score`)
-
-![Learning Curves y Calibración](figures/fe/05_learning_curves_y_calibracion.png)
-
-| Modelo / Representación de Datos | Diagnóstico Learning Curve (Train vs. CV 5-fold) | `Brier Score` (5 folds, ↓ mejor) | `ROC-AUC` (5 folds, ↑ mejor) | `Log-Loss` | `ECE` (error de calibración, ↓ mejor) |
-|---|---|:---:|:---:|:---:|:---:|
-| **`Baseline (FS0_raw13)`** | **Alto sesgo (*underfitting*):** curvas de train y validación pegadas en $\text{AUC}\approx 0.50$ y $LG \approx -0.010$; añadir más datos no mejora. | $0.1656 \pm 0.0096$ | $0.4974 \pm 0.0178$ | $0.5136$ | $0.2584$ |
-| **`FS2_hist6` (Historial sin ZPD)** | **Alto sesgo:** sin el cruce $(\theta_k, b_{adj})$, el historial de aciertos no predice si la acción entrante caerá en la ZPD. | $0.1690 \pm 0.0108$ | $0.5003 \pm 0.0240$ | $0.5215$ | $0.2756$ |
-| **`D2 Pre-decisión por Texto` (`clean5 + 2 vars ZPD` + Platt en train)** | **Bajo sesgo y baja varianza:** mejora sostenida desde $N=400$ hasta $N=4\,000$ y convergencia PPO en $275$ episodios. | **$0.1544 \pm 0.0103$** | **$0.6352 \pm 0.0127$** | **$0.4812$** | **$0.0528$ ($-79\%$) |
-| **`D2 Transición por Ítem` (`clean5 + 2 vars ZPD` a nivel ítem)** | **Techo de resolución del modelo de mundo:** brecha train-val $<0.025$ desde $N=1\,100$ registros. | **$0.0703 \pm 0.0028$ ($-58\%$) | **$0.9479 \pm 0.0049$** | **$0.2040$** | **$0.0581$** |
+| Ranking | Trial | Método | Parámetros (`H`, `eps_wm`, `lr`, `clip_eps`, `gamma`, `gae_lambda`) | `LG_sim` 10 semillas (media ± DE) | `LG` Validación 5-Fold (alumnos no vistos) | Tiempo (s) | Decisión / Rol |
+|:---:|:---:|---|---|:---:|:---:|:---:|---|
+| **#1** | **`Trial #39`** | **`Optuna TPE (Fase 2)`** | **`H=5, eps=0.05, lr=1e-04, clip=0.20, γ=0.99, λ=0.95`** | **`0.5329 ± 0.00521`** | **`+0.0312 ± 0.0148`** | `41.5` | 🏆 **GANADORA (Adoptada en `config.py`)** |
+| **#2** | **`Trial #35`** | **`Optuna TPE (Fase 2)`** | **`H=5, eps=0.05, lr=1e-04, clip=0.10, γ=0.99, λ=0.95`** | **`0.5304 ± 0.00506`** | **`+0.0302 ± 0.0148`** | `42.2` | 🛡️ **Respaldo #1 (Menor varianza, `clip=0.10`)** |
+| **#3** | **`Trial #38`** | **`Optuna TPE (Fase 2)`** | **`H=5, eps=0.05, lr=1e-04, clip=0.20, γ=0.99, λ=0.90`** | **`0.5278 ± 0.00518`** | **`+0.0292 ± 0.0148`** | `40.9` | 🛡️ **Respaldo #2 (Alternativa `gae_lambda=0.90`)** |
+| #4 | `Trial #34` | `Optuna TPE (Fase 2)` | `H=5, eps=0.05, lr=1e-04, clip=0.10, γ=0.99, λ=0.90` | `0.5253 ± 0.00537` | `+0.0283 ± 0.0152` | `42.0` | Supera línea base `B5` |
+| #5 | `Trial #37` | `Optuna TPE (Fase 2)` | `H=5, eps=0.05, lr=1e-04, clip=0.20, γ=0.95, λ=0.95` | `0.5249 ± 0.00514` | `+0.0281 ± 0.0149` | `41.5` | Supera línea base `B5` |
+| #6 | `Trial #16` | `Optuna TPE (Fase 1)` | `H=5, eps=0.05, lr=3e-04, clip=0.20, γ=0.99, λ=0.95` | `0.5236 ± 0.00139` | `+0.0277 ± 0.0150` | `41.5` | Supera línea base `B5` |
+| #7 | `Trial #25` | `Optuna TPE (Fase 1)` | `H=7, eps=0.05, lr=1e-04, clip=0.20, γ=0.99, λ=0.95` | `0.5232 ± 0.00178` | `+0.0273 ± 0.0152` | `46.5` | Horizonte largo (`H=7`, +12% tiempo) |
+| #8 | `Trial #33` | `Optuna TPE (Fase 2)` | `H=5, eps=0.05, lr=1e-04, clip=0.10, γ=0.95, λ=0.95` | `0.5223 ± 0.00129` | `+0.0272 ± 0.0149` | `41.4` | Supera línea base `B5` |
+| #9 | `Trial #36` | `Optuna TPE (Fase 2)` | `H=5, eps=0.05, lr=1e-04, clip=0.20, γ=0.95, λ=0.90` | `0.5198 ± 0.00139` | `+0.0262 ± 0.0150` | `41.8` | Supera línea base `B5` |
+| #10 | `Trial #24` | `Optuna TPE (Fase 1)` | `H=7, eps=0.05, lr=3e-04, clip=0.20, γ=0.99, λ=0.95` | `0.5139 ± 0.00170` | `+0.0239 ± 0.0152` | `46.5` | Supera línea base `B5` |
+| — | `Trial #15` | `Ancla B5 sin HPO` | `H=5, eps=0.10, lr=3e-04, clip=0.20, γ=0.99, λ=0.95` | `0.5043 ± 0.00539` | `+0.0203 ± 0.0167` | `41.5` | Línea base `B5` previa a HPO |
 
 ---
 
-## 4. Resultados del Experimento A/B en Variantes de LOS DATOS (5 Folds y 10 Pares)
+## 3. Comparación Consolidada de Condiciones Experimentales (`B0` a `B5 + HPO`)
 
-**Protocolo idéntico entre variantes (Checklist Sprint 2):** 100 estudiantes sintéticos $\to$ `GroupKFold` (5 folds: 80 train / 20 test) $\times$ semillas `{0, 1}` $= 10$ pares pareados. Presupuesto fijo: $1\,500$ episodios $\times 50$ pasos $= 75\,000$ pasos/corrida. Evaluación en los 20 alumnos de test con política *greedy* y pesos congelados (`5/5 PASS` en `python -m src.leakage_checks`).
+![Ablación B0-B5 y HPO](figures/02_ablacion_b0_b5_y_hpo.png)
 
-### 4.1 Tabla comparativa estándar
-
-| ID Experimento | Variante de Datos | Dimensión $(d_s, d_a)$ | Parámetros Política | $LG_{\text{sim}}$ holdout (media ± DE) | Acierto | Eventos de aprendizaje/paso | Violaciones (shield)/paso | Episodios a $LG_{\text{base}}$ (mediana) | Latencia mediana (ms) | Decisión |
-|---|---|:---:|---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| `FE5-PPOlin_FS0_raw13` | **Baseline** (`FS0_raw13`) | $(13, 0)$ | $1\,260$ | $-0.0095 \pm 0.0174$ | $0.730$ | $0.273$ | $0.017$ | $750$ ($10/10$) | $0.031$ | Referencia |
-| `FE5-PPOlin_FS2_hist6` | **Var Historial** (`FS2_hist6`) | $(19, 0)$ | $1\,800$ | $-0.0063 \pm 0.0162$ | $0.737$ | $0.272$ | $0.015$ | $775$ ($8/10$) | $0.034$ | **DESCARTAR** |
-| `FE5-PPOlin_FS1_zpd4` | **Var1** (`FS1_zpd4`, 4 vars colineales) | $(13, 4)$ | $1\,264$ | $+0.0105 \pm 0.0150$ | $0.716$ | $0.312$ | $0.016$ | $350$ ($10/10$) | $0.150$ | Superada por `D2` |
-| `FE5-PPOlin_D1_zpd2` | **Ablación 2 vars** (`D1_zpd2` en estado crudo) | $(13, 2)$ | $1\,262$ | $+0.0094 \pm 0.0159$ | $0.707$ | $0.313$ | $0.022$ | $325$ ($10/10$) | $0.142$ | Ablación intermedia |
-| `FE5-PPOlin_D2_clean5_zpd2` | **Var2 Adoptada** (`clean5 + 2 vars ZPD`) | **$(5, 2)$** | **$542$** | **$+0.0203 \pm 0.0167$** | $0.711$ | **$0.334$** | $0.017$ | **$275$ ($10/10$)** | **$0.118$** | **ADOPTAR** |
-
-### 4.2 Comparación Fold por Fold (`Fold 0` a `Fold 4`) y Efecto Pareado (10 pares)
-
-![Ablación por Fold y Efecto Pareado](figures/fe/06_ablacion_por_fold_y_pareada.png)
-
-| Fold (`GroupKFold`, 20 alumnos test/fold) | `Baseline (FS0_raw13)` | `FS2_hist6` (Historial) | `Var1 (FS1_zpd4, 4 vars)` | `D1_zpd2` (2 vars en estado crudo) | **`Var2 Adoptada (D2: clean5 + 2 vars)`** | **Mejora en $LG$ (`Var2 − Baseline`)** | **Mejora en $LG$ (`Var2 − Var1`)** |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **Fold 0** | $-0.0263$ | $-0.0066$ | $-0.0024$ | $+0.0053$ | **$+0.0028$** | $+0.0291$ | $+0.0052$ |
-| **Fold 1** | $-0.0305$ | $-0.0302$ | $+0.0017$ | $-0.0084$ | **$+0.0072$** | $+0.0376$ | $+0.0054$ |
-| **Fold 2** | $+0.0054$ | $+0.0050$ | $+0.0308$ | $+0.0240$ | **$+0.0364$** | $+0.0310$ | $+0.0056$ |
-| **Fold 3** | $-0.0048$ | $+0.0020$ | $+0.0014$ | $+0.0068$ | **$+0.0324$** | $+0.0372$ | $+0.0310$ |
-| **Fold 4** | $+0.0087$ | $-0.0015$ | $+0.0209$ | $+0.0193$ | **$+0.0227$** | $+0.0140$ | $+0.0018$ |
-| **Media 5 Folds (10 pares)** | **$-0.0095$** | **$-0.0063$** | **$+0.0105$** | **$+0.0094$** | **$+0.0203$** | **$+0.0298$** | **$+0.0098$** |
-
-| Contraste pareado ($n=10$ pares `fold × seed`) | $\Delta LG_{\text{sim}}$ | IC95 Bootstrap | $p$ permutación exacta | $p_{\text{Holm}}$ | $d_z$ de Cohen | Pares ganados |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|
-| **`Var2 (D2_clean5_zpd2)` − `Baseline`** | **$+0.0298$** | **$[+0.0225, +0.0372]$** | **$0.0020$** | **$0.0078$** | **$2.40$** | **$10/10$** |
-| **`Var1 (FS1_zpd4)` − `Baseline`** | $+0.0200$ | $[+0.0130, +0.0274]$ | $0.0020$ | $0.0078$ | $1.61$ | $10/10$ |
-| **`D1 (zpd2)` − `Baseline`** | $+0.0189$ | $[+0.0107, +0.0278]$ | $0.0039$ | $0.0078$ | $1.30$ | $9/10$ |
-| **`FS2_hist6` − `Baseline`** | $+0.0032$ | $[-0.0051, +0.0122]$ | $0.4941$ | $0.4941$ | $0.22$ | $5/10$ |
-| **`Var2 (D2_clean5_zpd2)` − `Var1 (FS1_zpd4)`** *(efecto puro de podar ruido y colinealidad)* | $+0.0098$ | $[+0.0012, +0.0204]$ | $0.0606$ | — (contraste aparte) | $0.60$ | $8/10$ ($5/5$ folds) · **tendencia, no significativa al 5 %** |
+| Condición | Descripción | `LG_sim` (10 semillas, media ± DE) | Mejora relativa sobre `B4 (PPO)` | Estado Hipótesis General ($\ge 0.50$) |
+|---|---|:---:|:---:|:---:|
+| `B0` | Secuencia aleatoria | `0.1373 ± 0.00613` | — | No |
+| `B1` | Currículo fijo | `0.1583 ± 0.00486` | — | No |
+| `B2` | Heurística *Greedy Mastery* | `0.1803 ± 0.00743` | — | No |
+| `B3` | RL básica tabular / estado manual | `0.2053 ± 0.00669` | — | No |
+| `B4` | PPO *Model-Free* | `0.2393 ± 0.00714` | Referencia (`0.0%`) | No |
+| `B5` | Dyna-PPO (antes de HPO) | `0.5043 ± 0.00539` | `+110.7%` ($t = 81.70, p_t = 3.12e-14, p_perm = 0.00195$) | ✅ Cumple |
+| **`B5 + HPO`** | **Dyna-PPO con HPO (`Trial #39`)** | **`0.5329 ± 0.00521`** | **`+122.7%` (+5.7% adicional sobre `B5`, $p < 0.0001$)** | ✅ **Óptimo global** |
 
 ---
 
-## 5. Sensibilidad sin Oráculo ($\hat{\theta}$ Elo Online) y Transición a Aula Real
+## 4. Control de Congruencia del Repositorio (`6/6 PASS`) y Reproducibilidad
 
-Al reemplazar la habilidad verdadera $\theta^*$ por el estimador recursivo Elo ($\hat{\theta}_k \leftarrow \text{clip}(\hat{\theta}_k + 0.1(y_t - \hat{P}_{3PL}), 0, 1)$, inicializado en $0.5$), `Var2 (D2_clean5_zpd2)` mantiene el mejor desempeño de todas las variantes también bajo incertidumbre de medición:
-
-| Variante | $LG_{\text{sim}}$ con $\theta^*$ (seed 0) | $LG_{\text{sim}}$ con $\hat{\theta}$ Elo observable (seed 0) | Ventaja sobre Baseline con $\hat{\theta}$ Elo |
-|---|:---:|:---:|:---:|
-| `PPOlin_FS0_raw13` (Baseline) | $-0.0106$ | $-0.0101$ | — |
-| `PPOlin_FS1_zpd4` (4 vars ZPD + estado crudo) | $+0.0136$ | $-0.0006$ | $+0.0095$ ($4/5$ folds) |
-| **`PPOlin_D2_clean5_zpd2` (2 vars ZPD + estado limpio)** | **$+0.0176$** | **$+0.0009$** | **$+0.0110$ ($4/5$ folds)** |
-
-### 5.1 Protocolo de despliegue cuando sea real en aula (Tesis II)
-
-| Componente | En el simulador (Tesis I) | En despliegue real con estudiantes (Tesis II) |
-|---|---|---|
-| **Estado depurado (`clean5`)** | $[\theta_1, \theta_2, \theta_3, t/H, b_{t-1}] \in \mathbb{R}^5$ | $[\hat{\theta}_1, \hat{\theta}_2, \hat{\theta}_3, t/H, b_{t-1}] \in \mathbb{R}^5$ inicializado con pretest corto de 6 ítems (2 por competencia) y actualizado en línea por IRT bayesiano / Elo tras cada respuesta. |
-| **Las 2 variables ZPD (`zpd2`)** | `zpd_hit` y `abs_gap` sobre `item_bank.csv` sintético | **Idéntica función `action_features(theta_hat)`**: solo cambia la tabla `item_bank.csv` por los parámetros $b_i$ calibrados en el piloto ($N \ge 60$ alumnos con Elo multimodelo; Pelánek, 2016) y la calibración sigmoidal de Platt sobre las probabilidades de transición. |
-| **Seguridad pedagógica (CMDP)** | Shield determinista ante racha $\ge 4$ errores ($\text{nivel} \leftarrow 0$) | Mismo shield en producción más restricción de soporte $\lvert\hat{\theta}_k - b_{adj}\rvert \le 0.6$ para evitar exploración fuera de zona calibrada. |
-
----
-
-## 6. Reproducibilidad (Checklist Sprint 2)
+| Verificación Automática (Sección 6 del Notebook) | Estado | Evidencia |
+|---|:---:|---|
+| 1. Medias `B0–B5` (`ablation_summary.json` vs. `README.md`) | ✅ `PASS` | Coincidencia exacta a 3 decimales (`0.137`, `0.158`, `0.180`, `0.205`, `0.239`, `0.504`). |
+| 2. Mejora relativa sobre `B4` sin error de redondeo intermedio | ✅ `PASS` | `B5 vs B4`: `+110.7%` (sobre valores exactos por semilla) · `B5+HPO vs B4`: `+122.7%`. |
+| 3. Desviación estándar en `generate_report.py` vs. JSON | ✅ `PASS` | `generate_report.py` lee directamente `ablation_summary.json` (`DE independientes entre 0.00486 y 0.00743`). |
+| 4. Superación estadística de `B5` mediante HPO (`10 semillas`) | ✅ `PASS` | `0.5329` vs. `0.5043` ($t\text{ pareado} = 36.76, p_t = 4.04\times 10^{-11}, p_{\text{perm}} = 0.00195$). |
+| 5. Trazabilidad de logs HPO (`logs/hpo_runs.csv` + `config/search.yaml`) | ✅ `PASS` | 39 trials registrados con semilla, presupuesto, tiempo, estado de pruning y métricas 5-Fold. |
+| 6. Módulos `scr/config.py` y `src/config.py` sincronizados | ✅ `PASS` | Actualizados con la configuración ganadora (`dyna_horizon=5`, `wm_mse_threshold=0.05`, `lr=1e-4`). |
 
 ```bash
-pip install -r requirements.txt                       # numpy, pandas, matplotlib, scikit-learn, scipy
-python -m src.leakage_checks                          # 5/5 pruebas automaticas de cero fuga
-python -m src.run_ab --variant PPOlin_FS0_raw13       # Baseline (estado crudo 13 vars)
-python -m src.run_ab --variant PPOlin_FS1_zpd4        # Var1 (estado crudo + 4 vars ZPD)
-python -m src.run_ab --variant PPOlin_D2_clean5_zpd2  # Var2 Adoptada (estado limpio 5 vars + 2 vars ZPD)
-jupyter notebook notebooks/03_Importancia_Variables_y_Matriz_Consistencia.ipynb
+pip install -r requirements.txt
+python generate_report.py
+jupyter notebook avance_sprint_optimizacion_hiperparametros.ipynb
 ```
-
-| Artefacto | Valor verificable |
-|---|---|
-| Snapshot de datos | `data/item_bank.csv` · SHA-256 `07ed76f0bee0a21d…` · 300 filas (`data/SNAPSHOT.json`) |
-| Código experimental | SHA-256 `ed9d8eac50ac6a5d…` (`simulator.py`, `feature_engineering.py`, `agent_ppo_linear.py`, `experiment.py`) |
-| Logs y diagnósticos | `logs/metrics_experimentos.csv`, `data/results/runs_oracle.json`, `runs_elo.json`, `sprint2_diagnostics.json`, `tabla_comparativa_ab.csv` |
-
-## Referencias
-
-* Birnbaum, A. (1968). Some latent trait models. En Lord & Novick, *Statistical Theories of Mental Test Scores*. Addison-Wesley.
-* Doroudi, S., Aleven, V., & Brunskill, E. (2019). Where's the reward? A review of reinforcement learning for instructional sequencing. *IJAIED, 29*, 568–620. https://doi.org/10.1007/s40593-019-00187-x
-* Hake, R. R. (1998). Interactive-engagement versus traditional methods. *American Journal of Physics, 66*(1), 64–74. https://doi.org/10.1119/1.18809
-* Kaufman, S., Rosset, S., Perlich, C., & Stitelman, O. (2012). Leakage in data mining: Formulation, detection, and avoidance. *ACM TKDD, 6*(4), 1–21. https://doi.org/10.1145/2382577.2382579
-* Lundberg, S. M., & Lee, S.-I. (2017). A unified approach to interpreting model predictions. *Advances in Neural Information Processing Systems (NeurIPS), 30*, 4765–4774.
-* Pelánek, R. (2016). Applications of the Elo rating system in adaptive educational systems. *Computers & Education, 98*, 169–179. https://doi.org/10.1016/j.compedu.2016.03.017
-* Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). Proximal policy optimization algorithms. arXiv:1707.06347.
