@@ -1,26 +1,61 @@
-% !TeX program = xelatex
 % ==============================================================================
 % INFORME PARCIAL PI2 — PROYECTO DE INVESTIGACIÓN II (PLANTILLA ACADÉMICA UNI)
+% Compatible con pdfLaTeX (Overleaf por defecto), XeLaTeX y LuaLaTeX
 % Estilo: Fondo blanco, escudo oficial UNI granate (#7B1113) + paleta vibrante
 % Cifras: Exclusivamente Régimen B verificado (summary.json, runs_oracle.json,
 %         runs_elo.json, sprint2_diagnostics.json, src/*.py) en commit 77c6cfe
 % ==============================================================================
 \documentclass[10.5pt,a4paper]{article}
 
-% --- Codificación, idioma y tipografía (XeLaTeX) ---
+% --- Codificación, idioma y tipografía (compatible pdfLaTeX / XeLaTeX / LuaLaTeX) ---
+\usepackage{iftex}
 \usepackage[spanish,es-tabla,es-lcroman]{babel}
-\usepackage{fontspec}
-\setsansfont{Segoe UI}[
-  BoldFont = Segoe UI Bold,
-  ItalicFont = Segoe UI Italic,
-  BoldItalicFont = Segoe UI Bold Italic
-]
-\setmainfont{Segoe UI}[
-  BoldFont = Segoe UI Bold,
-  ItalicFont = Segoe UI Italic,
-  BoldItalicFont = Segoe UI Bold Italic
-]
-\setmonofont{Consolas}[Scale=0.90]
+\ifPDFTeX
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+  \usepackage{lmodern}
+  \usepackage{tgheros}
+  \DeclareUnicodeCharacter{00B7}{\textperiodcentered}
+  \DeclareUnicodeCharacter{2013}{--}
+  \DeclareUnicodeCharacter{2014}{---}
+\else
+  \usepackage{fontspec}
+  \IfFontExistsTF{Segoe UI}{%
+    \setsansfont{Segoe UI}[
+      BoldFont = Segoe UI Bold,
+      ItalicFont = Segoe UI Italic,
+      BoldItalicFont = Segoe UI Bold Italic
+    ]%
+    \setmainfont{Segoe UI}[
+      BoldFont = Segoe UI Bold,
+      ItalicFont = Segoe UI Italic,
+      BoldItalicFont = Segoe UI Bold Italic
+    ]%
+  }{%
+    \IfFontExistsTF{texgyreheros-regular.otf}{%
+      \setsansfont{texgyreheros-regular.otf}[
+        BoldFont = texgyreheros-bold.otf,
+        ItalicFont = texgyreheros-italic.otf,
+        BoldItalicFont = texgyreheros-bolditalic.otf
+      ]%
+      \setmainfont{texgyreheros-regular.otf}[
+        BoldFont = texgyreheros-bold.otf,
+        ItalicFont = texgyreheros-italic.otf,
+        BoldItalicFont = texgyreheros-bolditalic.otf
+      ]%
+    }{}%
+  }
+  \IfFontExistsTF{Consolas}{%
+    \setmonofont{Consolas}[Scale=0.90]%
+  }{%
+    \IfFontExistsTF{texgyrecursor-regular.otf}{%
+      \setmonofont{texgyrecursor-regular.otf}[
+        BoldFont = texgyrecursor-bold.otf,
+        Scale = 0.88
+      ]%
+    }{}%
+  }
+\fi
 \renewcommand{\familydefault}{\sfdefault}
 
 % --- Geometría y espaciado ---
@@ -1028,14 +1063,14 @@ En una sesión corta de $T=50$ pasos domina el olvido multiplicativo (ec.~\ref{e
     \code{theta\_1}, \code{theta\_2}, \code{theta\_3} & Habilidad verdadera por competencia & \textbf{\color{EmeraldGreen}Retenidas} \\
     \rowcolor{RowTintTeal} \code{b\_prev\_raw}, \code{u\_progress} & Dificultad previa y avance $t/50$ & \textbf{\color{EmeraldGreen}Retenidas} {\scriptsize(sin ablación propia)} \\
     \code{zpd\_prox}, \code{signed\_gap} & Proximidad gaussiana y brecha con signo & \color{AmberGold}Descartadas por colinealidad \\
-    \rowcolor{RowTintTeal} \code{sigma\_1..3}, \code{u\_acc}, \code{u\_streak}, \code{tau\_1}, \code{tau\_2}, \code{E\_hat} & Columnas constantes sin variación ($\code{n\_dead\_xt}=8$) & \color{MutedSlate}Descartadas \\
+    \rowcolor{RowTintTeal} \code{sigma\_1..3}, \code{u\_acc}, \code{u\_streak}, \code{tau\_1}, \code{tau\_2}, \code{E\_hat} & Columnas constantes sin variación (\code{n\_dead\_xt} $= 8$) & \color{MutedSlate}Descartadas \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
 \subsection*{Anexo D. Registro individual de corridas}
 \addcontentsline{toc}{subsection}{Anexo D. Registro individual de corridas}
-\textbf{\color{AmberGold}Configuración (\code{runs\_oracle.json}):} $\code{n\_students} = 100$, $\code{k\_folds} = 5$, $\code{fold\_seed} = 2026$, $\code{bank\_seed} = 2026$, $\code{seeds} = [0, 1]$, $\code{train\_episodes} = 1500$. Huellas íntegras: $\code{code\_sha256} = \code{ed9d8eac\ldots 49b1a}$, $\code{data\_sha256} = \code{07ed76f0\ldots d4706}$.
+\textbf{\color{AmberGold}Configuración (\code{runs\_oracle.json}):} \code{n\_students} $= 100$, \code{k\_folds} $= 5$, \code{fold\_seed} $= 2026$, \code{bank\_seed} $= 2026$, \code{seeds} $= [0, 1]$, \code{train\_episodes} $= 1500$. Huellas íntegras: \code{code\_sha256} $= \code{ed9d8eac\ldots 49b1a}$, \code{data\_sha256} $= \code{07ed76f0\ldots d4706}$.
 
 \begin{table}[H]
   \centering
